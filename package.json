@@ -1,0 +1,25 @@
+{
+  "name": "data-processing-tests",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.14.1",
+    "http": "^0.0.0",
+    "mysql": "^2.13.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pritchy96/data-processing-tests.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Pritchy96/data-processing-tests/issues"
+  },
+  "homepage": "https://github.com/Pritchy96/data-processing-tests#readme"
+}
