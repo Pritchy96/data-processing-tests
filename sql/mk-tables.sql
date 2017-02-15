@@ -16,3 +16,7 @@ CREATE TABLE tags (
   FOREIGN KEY (item_ID) REFERENCES items(item_ID),
   UNIQUE (`key`)
 );
+
+
+INSERT INTO items (version, file_pointer)
+VALUES (0, 'testtesttest');

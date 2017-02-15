@@ -5,7 +5,7 @@ var express = require('express')
 var server = express()
 
 //Routing pagess
-var addDataPage = require('./addData')
+//var addDataPage = require('./addData')
 
 server.get('/', function (request, response) {
   response.send('Root page, /addData to add data')
@@ -74,16 +74,17 @@ server.get('/getData', function (request, response) {
 	});
 
 
-	//con.query('SELECT * FROM temp',function(err,rows){
-	  //if(err) throw err;
+	con.query('SELECT * FROM data',function(err,rows){
+	  if(err) throw err;
 
-    /*
+
 	  console.log('Data received from Db:\n');
 	  console.log(rows);
 
 	  for (var i = 0; i < rows.length; i++) {
-			response.write(rows[i].entryID
-				+ " " + rows[i].tempC
+			response.write(rows[i].item_ID
+				+ " " + rows[i].creation_date
+        + " " + rows[i].revision_date
 				+ "\n");
 	  }
 	});
