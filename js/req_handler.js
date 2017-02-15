@@ -43,7 +43,7 @@ server.get('/addData', function (request, response) {
 	  //if(err) throw err;
 
 	  //console.log('Last insert deviceID:', res.deviceID);
-	});
+	//});
 
 	con.end(function(err) {
 		//End transmission after query is finished.
@@ -74,7 +74,7 @@ server.get('/getData', function (request, response) {
 	});
 
 
-	con.query('SELECT * FROM data',function(err,rows){
+	con.query('SELECT * FROM items',function(err,rows){
 	  if(err) throw err;
 
 
@@ -88,7 +88,6 @@ server.get('/getData', function (request, response) {
 				+ "\n");
 	  }
 	});
-  */
 
 	con.end(function(err) {
 		//End transmission after query is finished.
@@ -99,6 +98,6 @@ server.get('/getData', function (request, response) {
 	});
 })
 
-server.listen(2000, function () {
-  console.log('Listening on port 2000')
+server.listen(8080, function () {
+  console.log('Listening on port 8080')
 })
