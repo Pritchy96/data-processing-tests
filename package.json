@@ -1,17 +1,18 @@
 {
   "name": "data-processing-tests",
   "version": "1.0.0",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "ejs": "^2.5.5",
     "express": "^4.14.1",
     "http": "^0.0.0",
     "mysql": "^2.13.0"
   },
   "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Pritchy96/data-processing-tests.git"

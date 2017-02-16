@@ -13,10 +13,12 @@ CREATE TABLE tags (
   `key` CHAR(255) NOT NULL,
   `value` CHAR(255) NOT NULL,
   PRIMARY KEY (tag_ID),
-  FOREIGN KEY (item_ID) REFERENCES items(item_ID),
-  UNIQUE (`key`)
+  FOREIGN KEY (item_ID) REFERENCES items(item_ID)
 );
 
 
 INSERT INTO items (version, file_pointer)
 VALUES (0, 'testtesttest');
+
+INSERT INTO tags (item_ID, `key`, `value`)
+VALUES (1, 'itsakey', 'imavalue');
