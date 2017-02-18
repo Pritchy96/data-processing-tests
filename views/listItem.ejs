@@ -1,0 +1,19 @@
+<div class="list-group scrollable">
+  <% if (items.length) { %>
+  <% items.forEach(function(item){ %>
+  <a onclick="loadItem('item')" class="list-group-item list-group-item-action flex-column align-items-start">
+    <div class="d-flex w-100 justify-content-between">
+      <h5 class="mb-1"><%= item.itemID %></h5>
+
+      <small>Last Modified: <%= item.revisionDate.getHours() + ":"
+        +  item.revisionDate.getMinutes() + " " + item.revisionDate.getDate()
+        + "/" + item.revisionDate.getMonth() + "/" + item.revisionDate.getFullYear() %>
+      </small>
+    </div>
+    <p class="mb-1"><%= item.filePointer %></p>
+    <small>Tags Tags Tags</small>
+  </a>
+
+  <% }) %> <!--foreach item-->
+</div> <!--End List-->
+<% } %>

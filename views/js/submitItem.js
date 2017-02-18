@@ -6,7 +6,7 @@ $(document).ready(function(){
     tags=$("#itemTags").val();
     content=$("#itemContent").val();
 
-    $.post("http://52.39.116.224:8080/addItem", {itemTitle: title, itemTags: tags, itemContent: content}, function(data){
+    $.post("http://http://52.39.116.224:8080/addItem", {itemTitle: title, itemTags: tags, itemContent: content}, function(data){
       if(data==='done')
         {
           alert("login success");

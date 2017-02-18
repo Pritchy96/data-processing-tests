@@ -1,47 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <% include head.ejs %>
-  </head>
-  <body>
-    <% include navbar.ejs %>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Master container -->
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-lg-2">
-          <h1>Stuff</h1
-          <p>Lorem ipsum...</p>
+    <!-- CSS files -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/master.css">
+
+  </head>
+
+  <body class="container-fluid full-height">
+
+    <!-- Main Naviagation Bar -->
+    <nav class="navbar navbar-toggleable-md navbar-inverse bg-inverse">
+      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+        <a class="navbar-brand" href="#">Navbar</a>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="./addItem.html">Add Item<span class="sr-only">(current)</span></a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="#">Link</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link disabled" href="#">Disabled</a>
+          </li>
+        </ul>
+
+        <form class="form-inline my-2 my-lg-0">
+          <input class="form-control mr-sm-2" type="text" placeholder="Search">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form>
+      </div>
+    </nav>
+
+    <!-- Main Page Content -->
+    <div class="container-fluid container-fluid-nopad full-height main-panel">
+      <div class="row full-height">
+
+        <!-- Left Bar/Content Window -->
+        <div class="col-lg-3 full-height text-center scrollable" id="left-banner" >
+            <div class="voffset4">
+              <% include listItem.ejs %>
+            </div>
         </div>
 
-        <!-- Add item fields -->
-        <div class="col-lg-10">
-          <h1>Stuff</h1
-          <div class="container-fluid">
-            <form>
+        <!-- Right Content Window -->
+        <div class="col-lg-9 full-height" >
+          <!-- Note top bar -->
+          <div class="btn-group container-fluid voffset3" role="group" aria-label="Button group with nested dropdown">
+            <button type="button" class="btn btn-secondary" id="button-save-item">Save</button>
+            <button type="button" class="btn btn-secondary">Delete</button>
 
-              <!-- Item Title -->
-              <div class="input-group input-group-lg">
-                <span class="input-group-addon" id="sizing-addon1">Item Name</span>
-                <input type="text" class="form-control" placeholder="Item_Name" aria-describedby="sizing-addon1">
+            <div class="btn-group" role="group">
+              <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Dropdown </button>
+              <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                <a class  ="dropdown-item" href="#">Dropdown link</a>
+                <a class="dropdown-item" href="#">Dropdown link</a>
               </div>
+            </div>
+          </div>
 
-              <!-- Item Tags -->
-              <div class="input-group input-group-lg">
-                <span class="input-group-addon" id="sizing-addon1">Item Tag(s)</span>
-                <input type="text" class="form-control" placeholder="THIS DUNDU NUFFIN" aria-describedby="sizing-addon1">
-              </div>
+          <!-- Main note UI -->
+          <div class="container-fluid voffset3">
+            <!-- Item Title -->
+            <div class="input-group input-group-lg">
+              <span class="input-group-addon" id="sizing-addon1">Item Name</span>
+              <input type="text" class="form-control" placeholder="Item_Name" id="itemTitle" aria-describedby="sizing-addon1">
+            </div>
 
-              <!-- Items Data -->
-              <div class="form-group">
-                <label for="formGroupExampleInput2">Another label</label>
-                <input type="text" class="form-control" id="formGroupExampleInput2" placeholder="Another input">
-              </div>
+            <!-- Item Tags -->
+            <div class="input-group input-group-lg voffset3">
+              <span class="input-group-addon" id="sizing-addon1">Item Tag/s</span>
+              <input type="text" class="form-control" placeholder="Comma Separated List" id="itemTags" aria-describedby="sizing-addon1">
+            </div>
 
-            </form>
+            <!-- Items Data -->
+            <textarea class="form-control text-entry voffset4" rows="20" placeholder="Insert data here" id="itemContent"></textarea>
           </div>
         </div>
       </div>
     </div>
+
+    <!--"Placing scripts at the bottom of the <body> element improves the display speed, because script compilation slows down the display"-->
+    <!-- jQuery first, then Tether, then Bootstrap JS. -->
+    <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+    <script src="/js/submitItem.js"></script>
   </body>
 </html>

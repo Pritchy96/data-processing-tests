@@ -63,6 +63,25 @@ router.get('/viewItem/:itemID', function(req, res) {
   });
 });
 
+router.get('/addItem', function(req, res) {
+  pool.query('select * from items', function(err, rows) {
+    var items = [];
+    if (rows[0]) {
+       var time;
+       rows.forEach(function(item) {
+        items.push({
+          itemID: item.item_ID,
+          revisionDate: item.revision_date,
+          filePointer: item.file_pointer,
+          });
+        });
+    } else {
+    items = [];
+    }
+    res.render("addItem", {items: items});
+  });
+});
+
 router.get("*", function(request, response) {
    //If the file path exists, serve the html file, otherwise serve 404.
    var filePath = path + request.url;
