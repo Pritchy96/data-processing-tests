@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="css/master.css">
   </head>
 
-
   <body class="container-fluid full-height">
 
     <!-- Main Naviagation Bar -->
@@ -56,7 +55,7 @@
         <div class="col-lg-10 full-height" >
           <!-- Note top bar -->
           <div class="btn-group container-fluid voffset3" role="group" aria-label="Button group with nested dropdown">
-            <button type="button" class="btn btn-secondary">Save</button>
+            <button type="button" class="btn btn-secondary" id="button-save-item">Save</button>
             <button type="button" class="btn btn-secondary">Delete</button>
 
             <div class="btn-group" role="group">
@@ -73,27 +72,27 @@
             <!-- Item Title -->
             <div class="input-group input-group-lg">
               <span class="input-group-addon" id="sizing-addon1">Item Name</span>
-              <input type="text" class="form-control" placeholder="Item_Name" aria-describedby="sizing-addon1">
+              <input type="text" class="form-control" placeholder="Item_Name" id="itemTitle" aria-describedby="sizing-addon1">
             </div>
 
             <!-- Item Tags -->
             <div class="input-group input-group-lg voffset3">
               <span class="input-group-addon" id="sizing-addon1">Item Tag/s</span>
-              <input type="text" class="form-control" placeholder="Comma Separated List" aria-describedby="sizing-addon1">
+              <input type="text" class="form-control" placeholder="Comma Separated List" id="itemTags" aria-describedby="sizing-addon1">
             </div>
 
             <!-- Items Data -->
-              <textarea class="form-control text-entry voffset4" rows="20" placeholder="Insert data here"></textarea>
+            <textarea class="form-control text-entry voffset4" rows="20" placeholder="Insert data here" id="itemContent"></textarea>
           </div>
         </div>
       </div>
     </div>
 
-
     <!--"Placing scripts at the bottom of the <body> element improves the display speed, because script compilation slows down the display"-->
     <!-- jQuery first, then Tether, then Bootstrap JS. -->
-    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+    <script src="/js/submitItem.js"></script>
   </body>
 </html>

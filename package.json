@@ -10,7 +10,8 @@
     "ejs": "^2.5.5",
     "express": "^4.14.1",
     "http": "^0.0.0",
-    "mysql": "^2.13.0"
+    "mysql": "^2.13.0",
+    "body-parser": "^1.8.1"
   },
   "devDependencies": {},
   "repository": {

@@ -8,6 +8,10 @@ app.set('view engine', 'ejs');
 var router = express.Router();
 var path = __dirname + '/views/';
 
+var bodyParser = require('body-parser');
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+
 // First you need to create a connection to the db
 var mysqlParams = {
   connectionLimit: 30,
@@ -17,7 +21,6 @@ var mysqlParams = {
   database: "data"
 };
 var pool = mysql.createPool(mysqlParams);
-
 
 router.use(function (request, response, next) {
   console.log("/" + request.method);  //Always print request to server console.
@@ -60,18 +63,15 @@ router.get('/viewItem/:itemID', function(req, res) {
   });
 });
 
-
 router.get("*", function(request, response) {
    //If the file path exists, serve the html file, otherwise serve 404.
    var filePath = path + request.url;
 
    if(filePath.indexOf('.') == -1)
-  {
+   {
     //Period found.
     filePath += ".html"
-  }
-
-   console.log(filePath);
+   }
 
    if(fs.existsSync(filePath)) {
      response.sendFile(filePath);
@@ -80,14 +80,46 @@ router.get("*", function(request, response) {
    }
 });
 
+//Save Item.
+router.post('/addItem', function(req,res){
+
+  var content=req.body.itemContent;
+  var itemID;
+
+  pool.query('INSERT INTO items SET ?', {version: 0, file_pointer: content},
+   function (error, result, fields) {
+    if (error) throw error;
+    itemID = result.insertId;
+    console.log("Insert ID: " + result.insertId);
+
+    var tags = [];
+    var userDefTags=req.body.itemTags.split(",");
+
+    //Add title of object to tags table.
+    tags.push([itemID, "title", req.body.itemTitle.trim()]);
+
+    //Add non user defined tags.
+    for (var i = 0; i < userDefTags.length; i++) {
+      //Add user def'd tags to the key/value array,
+      //without leading/preceeding spaces.
+      tags.push([itemID, "userDef", userDefTags[i].trim()]);
+    }
+
+    //Insert array of tags into tags table all at once.
+    pool.query("INSERT INTO tags (item_ID, `key`, `value`) VALUES ?", [tags],
+     function(error) {
+      if (error) throw error;
+    });
+  });
+
+  res.end("yes");
+});
 
 app.use("/",router);
-
 
 app.listen(8080, function () {
   console.log('Listening on port 8080')
 });
-
 
 /*
 
