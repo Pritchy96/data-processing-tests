@@ -16,7 +16,7 @@
             Version: <%= item.version %><br>
             Creation Date: <%= item.creation_date %><br>
             Revision Date: <%= item.revision_date %><br>
-            File Pointer: <%= item.filepointer %><br>
+            File Pointer: <%= item.filePointer %><br>
             Tags:
             <ul>
             <% item.tags.forEach(function(tag) { %>
@@ -34,7 +34,7 @@
           <h1>Stuff</h1>
           <div class="container-fluid">
           <% if (item) { %>
-            <%= item.filepointer %>
+            <%= item.filePointer %>
           <% } else { %>
             No item
           <% } %>

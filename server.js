@@ -25,7 +25,7 @@ var pool = mysql.createPool(mysqlParams);
 router.use(function (request, response, next) {
   console.log("/" + request.method);  //Always print request to server console.
   console.log("requesting " + request.url);  //Always print request to server console.
-  next(); //Allow the next router to be executed.
+  next(); //Allow the necreationdatext router to be executed.
 });
 
 router.get('/', function(request, response) {
@@ -41,9 +41,9 @@ router.get('/viewItem/:itemID', function(req, res) {
           item: {
             itemID: req.params.itemID,
             version: rows[0].version,
-            filepointer: rows[0].file_pointer,
-            creationdate: rows[0].creation_date,
-            revisiondate: rows[0].revision_date,
+            filePointer: rows[0].file_pointer,
+            creationDate: rows[0].creation_date,
+            revisionDate: rows[0].revision_date,
             tags: []
           }
         };
@@ -65,35 +65,26 @@ router.get('/viewItem/:itemID', function(req, res) {
 
 router.get('/addItem', function(req, res) {
   pool.query('select * from items', function(err, itemRes) {
+    pool.query('select * from tags', function(err, tagRes) {
+
       var items = [];
 
-
-
-      if (itemRes[0]) {
+      if (itemRes[0]) { //Only bother if theres some items returned.
          var time;
          itemRes.forEach(function(item) {
-
            var userTags = [], sysTags = [];
 
-           pool.query('select * from tags where item_ID = ?', [item.item_ID], function(err, tagRes) {
-             if (tagRes[0]) {
-               tagRes.forEach(function(tag) {
-                 if (tag.key == "userDef") {
-                   userTags.push(tag.value);
-                   console.log("user Tag Added: \n" + JSON.stringify(tag) + "\n");
-                 } else {
-                   sysTags.push({key: tag.key, value: tag.value});
-                   console.log("system Tag Added: \n" + JSON.stringify(tag) + "\n");
-
-                 }
-               });
+           if (tagRes[0]) {
+             var itemTags = tagRes.filter(tagsItem, item); //Run the tagsItem method on  tagRes, setting 'this' within the method to
+             //Split Item tags into User and System Tags
+             for (var i in itemTags) {
+                if (itemTags[i].key == "userDef") {
+                  userTags.push(itemTags[i].value);
+                } else {
+                  sysTags.push({key: itemTags[i].key, value: itemTags[i].value});
+                }
              }
-
-
-           });
-
-
-
+           }
 
           items.push({
             itemID: item.item_ID,
@@ -108,7 +99,15 @@ router.get('/addItem', function(req, res) {
       }
       res.render("addItem", {items: items});
     });
+  });
 });
+
+//Runs through an array of tags, and checks if item.item_ID == tag.itemID.
+function tagsItem(tag) {
+  //This is set by the second parameter that calls this function.
+  //God knows why. In this case it will be an item that we're creating.
+  return this.item_ID == tag.item_ID;
+}
 
 router.get("*", function(request, response) {
    //If the file path exists, serve the html file, otherwise serve 404.
@@ -130,27 +129,28 @@ router.get("*", function(request, response) {
 //Save Item.
 router.post('/addItem', function(req,res){
 
-  var content=req.body.itemContent;
+  var item=JSON.parse(req.body.item);
+  console.log(item);
   var itemID;
 
-  pool.query('INSERT INTO items SET ?', {version: 0, file_pointer: content},
+  pool.query('INSERT INTO items SET ?', {version: 0, file_pointer: item.filePointer},
    function (error, result, fields) {
     if (error) throw error;
     itemID = result.insertId;
     console.log("Insert ID: " + result.insertId);
 
     var tags = [];
-    var userDefTags=req.body.itemTags.split(",");
 
-    //Add title of object to tags table.
-    tags.push([itemID, "title", req.body.itemTitle.trim()]);
-
-    //Add non user defined tags.
-    for (var i = 0; i < userDefTags.length; i++) {
-      //Add user def'd tags to the key/value array,
-      //without leading/preceeding spaces.
-      tags.push([itemID, "userDef", userDefTags[i].trim()]);
+    //Add tags to single formatted array for pushing to database.
+    for (var i in item.userTags) {
+      tags.push([itemID, "userDef", item.userTags[i].trim()]);
     }
+
+    for (var i in item.sysTags) {
+      tags.push([itemID, item.sysTags[i].key, item.sysTags[i].value.trim()]);
+    }
+
+    console.log("\nTags are: " + tags);
 
     //Insert array of tags into tags table all at once.
     pool.query("INSERT INTO tags (item_ID, `key`, `value`) VALUES ?", [tags],
@@ -167,93 +167,3 @@ app.use("/",router);
 app.listen(8080, function () {
   console.log('Listening on port 8080')
 });
-
-/*
-
-app.get('/addData', function (request, response) {
-
-  response.write('Entering addData \n');
-
-	//Content to be added to DB.
-	//var temp = request.query.temp; // Get temp from request.
-	//var ID = request.query.ID; // Get deviceID from request.
-
-	//var entry = { tempC: temp, deviceID: ID };
-
-	// First you need to create a connection to the db
-	var con = mysql.createConnection({
-	  host: "localhost",
-	  user: "app",
-	  password: "ayylmao",
-	  database: "data"
-	});
-
-	con.connect(function(err){
-	  if(err){
-	    console.log('Error connecting to Db');
-	    return;
-	  }
-	  console.log('Connection established');
-		response.write('Connection established \n');
-
-	});
-
-	//con.query('INSERT INTO temp SET ?', entry, function(err,res){
-	  //if(err) throw err;
-
-	  //console.log('Last insert deviceID:', res.deviceID);
-	//});
-
-	con.end(function(err) {
-		//End transmission after query is finished.
-		response.end("End of transmission");
-	  // The connection is terminated gracefully
-	  // Ensures all previously enqueued queries are still
-	  // before sending a COM_QUIT packet to the MySQL app.
-	});
-})
-
-app.get('/getData', function (request, response) {
-
-	// First you need to create a connection to the db
-	var con = mysql.createConnection({
-	  host: "localhost",
-	  user: "app",
-	  password: "ayylmao",
-	  database: "data"
-	});
-
-	con.connect(function(err){
-	  if(err){
-	    console.log('Error connecting to Db');
-	    return;
-	  }
-	  console.log('Connection established');
-
-	});
-
-
-	con.query('SELECT * FROM items',function(err,rows){
-	  if(err) throw err;
-
-
-	  console.log('Data received from Db:\n');
-	  console.log(rows);
-
-	  for (var i = 0; i < rows.length; i++) {
-			response.write(rows[i].item_ID
-				+ " " + rows[i].creation_date
-        + " " + rows[i].revision_date
-				+ "\n");
-	  }
-	});
-
-	con.end(function(err) {
-		//End transmission after query is finished.
-		response.end();
-	  // The connection is terminated gracefully
-	  // Ensures all previously enqueued queries are still
-	  // before sending a COM_QUIT packet to the MySQL app.
-	});
-})
-*/
