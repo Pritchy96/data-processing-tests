@@ -1,7 +1,7 @@
 function submitItem(itemObj){
   console.log(itemObj);
 
-  $.post("http://localhost:8080/addItem", {item : JSON.stringify(itemObj)}, function(data){
+  $.post("http://52.39.116.224:8080/addItem", {item : JSON.stringify(itemObj)}, function(data){
   });
 }
 
