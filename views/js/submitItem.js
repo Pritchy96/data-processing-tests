@@ -12,8 +12,10 @@ $(document).ready(function(){
 
     sysTags.push({key: "title", value: $("#itemTitle").val().trim()});
 
-    //Todo: .trim each tag.
     var userTags = $("#itemTags").val().split(",");
+
+    //Strip out any whitepace, null etc strings in the array.
+    userTags = userTags.filter(function(entry) { return entry.trim() != ''; });
 
     filePointer = $("#itemContent").val();
 
