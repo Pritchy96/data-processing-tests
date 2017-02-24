@@ -1,7 +1,17 @@
+<!--  -->
+
+
 <div class="list-group scrollable">
-  <% if (items.length) { %>
+  <% if (items.length) {%>
+
+    <script>
+      console.log("<%= items[0].length %>");
+    </script>
+
+
+
   <% items.forEach(function(item){ %>
-  <a onclick="loadItem('item')" class="list-group-item list-group-item-action flex-column align-items-start">
+  <a onclick="loadItem(<%= JSON.stringify(item) %>)" class="list-group-item list-group-item-action flex-column align-items-start">
     <div class="d-flex w-100 justify-content-between">
       <h5 class="mb-1"><%= item.itemID %></h5>
 

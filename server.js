@@ -64,22 +64,50 @@ router.get('/viewItem/:itemID', function(req, res) {
 });
 
 router.get('/addItem', function(req, res) {
-  pool.query('select * from items', function(err, rows) {
-    var items = [];
-    if (rows[0]) {
-       var time;
-       rows.forEach(function(item) {
-        items.push({
-          itemID: item.item_ID,
-          revisionDate: item.revision_date,
-          filePointer: item.file_pointer,
+  pool.query('select * from items', function(err, itemRes) {
+      var items = [];
+
+
+
+      if (itemRes[0]) {
+         var time;
+         itemRes.forEach(function(item) {
+
+           var userTags = [], sysTags = [];
+
+           pool.query('select * from tags where item_ID = ?', [item.item_ID], function(err, tagRes) {
+             if (tagRes[0]) {
+               tagRes.forEach(function(tag) {
+                 if (tag.key == "userDef") {
+                   userTags.push(tag.value);
+                   console.log("user Tag Added: \n" + JSON.stringify(tag) + "\n");
+                 } else {
+                   sysTags.push({key: tag.key, value: tag.value});
+                   console.log("system Tag Added: \n" + JSON.stringify(tag) + "\n");
+
+                 }
+               });
+             }
+
+
+           });
+
+
+
+
+          items.push({
+            itemID: item.item_ID,
+            revisionDate: item.revision_date,
+            filePointer: item.file_pointer,
+            userTags: userTags,
+            sysTags: sysTags
           });
         });
-    } else {
-    items = [];
-    }
-    res.render("addItem", {items: items});
-  });
+      } else {
+        items = [];
+      }
+      res.render("addItem", {items: items});
+    });
 });
 
 router.get("*", function(request, response) {
