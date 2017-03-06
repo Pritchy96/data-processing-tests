@@ -1,29 +1,35 @@
 function submitItem(itemObj){
   console.log(itemObj);
 
-  $.post("http://52.39.116.224:8080/addItem", {item : JSON.stringify(itemObj)}, function(data){
+  $.post("http://localhost:8080/addItem", {item : JSON.stringify(itemObj)}, function(data){
   });
 }
 
 //Triggers on clicking 'save' button, pushes content of item back to server.js where it is caught with a POST reqeust.
 $(document).ready(function(){
   $("#button-save-item").click(function(){
-    var item, sysTags = [], userTags = [], filePointer;
+    var item, sysTags = [], userTags = [], content;
+
+    content = $("#itemContent").val();
 
     sysTags.push({key: "title", value: $("#itemTitle").val().trim()});
 
-    var userTags = $("#itemTags").val().split(",");
+    userTags = $("#itemTags").val().split(",");
 
     //Strip out any whitepace, null etc strings in the array.
     userTags = userTags.filter(function(entry) { return entry.trim() != ''; });
 
-    filePointer = $("#itemContent").val();
-
     item = {
-      filePointer: filePointer,
+      content: content,
       userTags: userTags,
-      sysTags: sysTags
+      sysTags: sysTags,
+      version: -1
     };
+
+    if (loadedItem) {
+      item.itemID = loadedItem.itemID;
+      item.version = loadedItem.version;
+    }
 
     submitItem(item);
   });
