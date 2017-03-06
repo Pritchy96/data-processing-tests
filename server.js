@@ -32,14 +32,14 @@ router.get('/', function(request, response) {
   response.send('Root page, /addData to add data')
 });
 
-router.get('/viewItem/:itemID', function(req, res) {
-  pool.query('select * from items where item_ID = ?', [req.params.itemID], function(err, rows) {
-    pool.query('select * from tags where item_ID = ?', [req.params.itemID], function(err, tags) {
+router.get('/viewItem/:itemID', function(request, response) {
+  pool.query('select * from items where item_ID = ?', [request.params.itemID], function(err, rows) {
+    pool.query('select * from tags where item_ID = ?', [request.params.itemID], function(err, tags) {
       var params = {};
       if (rows[0]) {
          params = {
           item: {
-            itemID: req.params.itemID,
+            itemID: request.params.itemID,
             version: rows[0].version,
             filePointer: rows[0].file_pointer,
             creationDate: rows[0].creation_date,
@@ -58,12 +58,12 @@ router.get('/viewItem/:itemID', function(req, res) {
       } else {
       params = { item : null };
       }
-      res.render("viewItem", params);
+      response.render("viewItem", params);
     });
   });
 });
 
-router.get('/addItem', function(req, res) {
+router.get('/addItem', function(request, response) {
   pool.query('select * from items', function(err, itemRes) {
     pool.query('select * from tags', function(err, tagRes) {
 
@@ -97,7 +97,7 @@ router.get('/addItem', function(req, res) {
       } else {
         items = [];
       }
-      res.render("addItem", {items: items});
+      response.render("addItem", {items: items});
     });
   });
 });
@@ -122,14 +122,14 @@ router.get("*", function(request, response) {
    if(fs.existsSync(filePath)) {
      response.sendFile(filePath);
    } else {
-     response.sendFile(path + "404.html");
+     response.render("404");
    }
 });
 
 //Save Item.
-router.post('/addItem', function(req,res){
+router.post('/addItem', function(request, response){
 
-  var item=JSON.parse(req.body.item);
+  var item=JSON.parse(request.body.item);
   console.log(item);
   var itemID;
 
@@ -159,7 +159,7 @@ router.post('/addItem', function(req,res){
     });
   });
 
-  res.end("yes");
+  response.end("yes");
 });
 
 app.use("/",router);
