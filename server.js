@@ -106,12 +106,9 @@ router.get('/addItem', function(request, response) {
             }
           }
 
-          //When this triggers, all promises have been resolved.
+          //When this triggers, all promises for the current item have been resolved.
           when.all(promises).then(function () {
-            console.log("Loaded item content (promises resolved): ");
-            console.log(item.content);
-
-            items.push({
+            items.push({  //Push the current items content to the list of items
               itemID: item.item_ID,
               revisionDate: item.revision_date,
               content: item.content,
@@ -124,7 +121,8 @@ router.get('/addItem', function(request, response) {
       } else {
         items = [];
       }
-      //When this triggers, all promises have been resolved.
+
+      //When this triggers, all promises from all items have been resolved.
       when.all(promises).then(function () {
         response.render("addItem", {items: items});
       });
@@ -193,15 +191,19 @@ function saveFile(item) {
   var tagLatch = when.defer();
 
   //Save the file with the itemID.
-  filehandler.saveFile(item, function(error, result) {
+  filehandler.saveFile(item, function(error, item) {
     if (error) return console.error(error);
+    console.log("resolving file save latch");
     filesaveLatch.resolve();
   });
   promises.push(filesaveLatch.promise);
 
+  tags = [];
 
-  addTags(item, function(error, itemWithTags) {
+  addTags(item, function(error, tagArray) {
     if (error) return console.error(error);
+    tags = tagArray;
+    console.log("resolving Tag latch");
     tagLatch.resolve();
   });
   promises.push(tagLatch.promise);
@@ -210,6 +212,7 @@ function saveFile(item) {
   //When this triggers, all promises have been resolved.
   when.all(promises).then(function () {
     console.log('Finished Promises, uploading item');
+
     //Insert array of tags into tags table all at once.
     pool.query("INSERT INTO tags (item_ID, `key`, `value`) VALUES ?", [tags],
      function(error) {
@@ -230,7 +233,9 @@ function addTags(item, callback) {
     tags.push([item.itemID, item.sysTags[i].key, item.sysTags[i].value.trim()]);
   }
 
-  callback(null, item);
+  console.log(tags);
+
+  callback(null, tags);
 }
 
 app.use("/",router);

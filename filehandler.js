@@ -15,31 +15,25 @@ var filehandler = function (){
           fs.mkdirSync(itemFolder);
       }
 
-      console.log("Item just before writing");
-      console.log(item);
-
       //Handle file extensions here?
-      fs.writeFileSync(itemFolder + "/" + item.version, item.content, function(err) {
+      fs.writeFile(itemFolder + "/" + item.version, item.content, function(err) {
          if(err) {
              return console.log(err);
              //If there is an error here, we're in trouble, as the files data will
              //already have been written to the database. Need some way to do tis synchronously,
              //Or remove the item from database and present error here.
          }
-         console.log("The file was saved!");
-         callback(null);
+
+         console.log("File saved.");
+         callback(null, item);
      });
    };
 
    //Loads the content of an item from the filestore, given the items database entry.
    this.loadFile = function (item, callback) {
 
-     console.log("Item just before loading");
-     console.log(item);
-
-
      if (item.item_ID == null || item.version == null) {
-       return console.error("item does not have id or version, can't load")
+       return console.error("item does not have id or version, cannot load")
      }
 
       var itemLocation = "filestore/" + item.item_ID + "/" + item.version;
@@ -49,9 +43,6 @@ var filehandler = function (){
         if (err) {
           throw err;
         }
-
-        console.log("Loaded item content: ");
-        console.log(content);
 
         callback(null, content);
       });
