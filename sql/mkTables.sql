@@ -10,14 +10,9 @@ CREATE TABLE items (
 CREATE TABLE tags (
   tag_ID INT(11) NOT NULL AUTO_INCREMENT,
   item_ID INT(11) NOT NULL,
-  `key` CHAR(255) NOT NULL,
-  `value` CHAR(255) NOT NULL,
+  `key` CHAR(100) NOT NULL,
+  `value` CHAR(100) NOT NULL,
+  UNIQUE KEY unique_tags (item_ID, `value`), --Ensures any given item doesn't have duplicate tags.
   PRIMARY KEY (tag_ID),
   FOREIGN KEY (item_ID) REFERENCES items(item_ID)
 );
-
-INSERT INTO items (version, file_pointer)
-VALUES (0, 'testtesttest');
-
-INSERT INTO tags (item_ID, `key`, `value`)
-VALUES (1, 'itsakey', 'imavalue');

@@ -6,7 +6,7 @@ function submitItem(itemObj){
 }
 
 //Triggers on clicking 'save' button, pushes content of item back to server.js where it is caught with a POST reqeust.
-$(document).ready(function(){
+$(document).ready(function() {
   $("#button-save-item").click(function(){
     var item, sysTags = [], userTags = [], content;
 

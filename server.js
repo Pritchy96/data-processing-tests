@@ -59,7 +59,7 @@ router.get('/viewItem/:itemID', function(request, response) {
           });
         });
       } else {
-      params = { item : null };
+        params = { item : null };
       }
       response.render("viewItem", params);
     });
@@ -78,7 +78,6 @@ router.get('/addItem', function(request, response) {
           //Latches, which are 'resolved' when the async method they are assigned to finish.
           //So we only save the item when the async stuff is finished.
           var fileloadLatch = when.defer();
-
 
           filehandler.loadFile(item, function(error, content) {
             if (error) console.error(error);
@@ -138,20 +137,20 @@ function tagsItem(tag) {
 }
 
 router.get("*", function(request, response) {
-   //If the file path exists, serve the html file, otherwise serve 404.
-   var filePath = path + request.url;
+  //If the file path exists, serve the html file, otherwise serve 404.
+  var filePath = path + request.url;
 
-   if(filePath.indexOf('.') == -1)
-   {
-    //Period found.
-    filePath += ".html"
-   }
+  if(filePath.indexOf('.') == -1)
+  {
+  //Period found.
+  filePath += ".html"
+  }
 
-   if(fs.existsSync(filePath)) {
-     response.sendFile(filePath);
-   } else {
-     response.sendFile(path + "404.html");
-   }
+  if(fs.existsSync(filePath)) {
+   response.sendFile(filePath);
+  } else {
+   response.sendFile(path + "404.html");
+  }
 });
 
 //Save Item.
@@ -213,10 +212,22 @@ function saveFile(item) {
   when.all(promises).then(function () {
     console.log('Finished Promises, uploading item');
 
-    //Insert array of tags into tags table all at once.
-    pool.query("INSERT INTO tags (item_ID, `key`, `value`) VALUES ?", [tags],
-     function(error) {
-      if (error) throw error;
+  //Insert array of tags into tags table all at once. (Ignore ignores duplicate inserts)
+  pool.query("INSERT IGNORE INTO tags (item_ID, `key`, `value`) VALUES ?", [tags],
+   function(error) {
+    if (error) {
+        throw error;
+      }
+    });
+
+  //Delete tags that are in the database but no longer in the list to be saved (I.E the user has removed it)
+  //Map isn't the greatest for compatability, so maybe need to implement a fallback method.
+  //Here it gets column 3 from tags, so we're left with an array of just the tag values check against in the query.
+  pool.query("DELETE FROM tags WHERE item_ID = ? AND `value` NOT IN ?", [item.itemID, [tags.map(x=> x[2])]],
+   function(error) {
+    if (error) {
+        throw error;
+      }
     });
   });
 }
