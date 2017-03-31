@@ -1,14 +1,17 @@
 var http = require('http');
-var mysql = require("mysql");
+var mysql = require('mysql');
 var express = require('express');
 var fs = require('fs');
+var fh = require("./filehandler.js");
+var filehandler = new fh();
+var when = require('when');
 
 var app = express();
 app.set('view engine', 'ejs');
 var router = express.Router();
 var path = __dirname + '/views/';
+var bodyParser = require('body-parser')  ;
 
-var bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -56,7 +59,7 @@ router.get('/viewItem/:itemID', function(request, response) {
           });
         });
       } else {
-      params = { item : null };
+        params = { item : null };
       }
       response.render("viewItem", params);
     });
@@ -67,37 +70,62 @@ router.get('/addItem', function(request, response) {
   pool.query('select * from items', function(err, itemRes) {
     pool.query('select * from tags', function(err, tagRes) {
 
-      var items = [];
+      var promises = [], items = [];
 
-      if (itemRes[0]) { //Only bother if theres some items returned.
-         var time;
-         itemRes.forEach(function(item) {
-           var userTags = [], sysTags = [];
+      if (itemRes[0]) { //Only bother if there are some items returned
+        itemRes.forEach(function(item) {
 
-           if (tagRes[0]) {
-             var itemTags = tagRes.filter(tagsItem, item); //Run the tagsItem method on  tagRes, setting 'this' within the method to
-             //Split Item tags into User and System Tags
-             for (var i in itemTags) {
-                if (itemTags[i].key == "userDef") {
-                  userTags.push(itemTags[i].value);
-                } else {
-                  sysTags.push({key: itemTags[i].key, value: itemTags[i].value});
-                }
-             }
-           }
+          //Latches, which are 'resolved' when the async method they are assigned to finish.
+          //So we only save the item when the async stuff is finished.
+          var fileloadLatch = when.defer();
 
-          items.push({
-            itemID: item.item_ID,
-            revisionDate: item.revision_date,
-            filePointer: item.file_pointer,
-            userTags: userTags,
-            sysTags: sysTags
+          filehandler.loadFile(item, function(error, content) {
+            if (error) console.error(error);
+
+            item.content = content;
+            console.log("item content (in callback): ");
+            console.log(content);
+
+            fileloadLatch.resolve();
+          });
+
+          promises.push(fileloadLatch.promise);
+
+          var userTags = [], sysTags = [];
+
+          if (tagRes[0]) {
+            var itemTags = tagRes.filter(tagsItem, item); //Run the tagsItem method on tagRes, setting 'this' within the method to
+            //Split Item tags into User and System Tags
+            for (var i in itemTags) {
+              if (itemTags[i].key == "userDef") {
+                userTags.push(itemTags[i].value);
+              } else {
+                sysTags.push({key: itemTags[i].key, value: itemTags[i].value});
+              }
+            }
+          }
+
+          //When this triggers, all promises for the current item have been resolved.
+          when.all(promises).then(function () {
+            items.push({  //Push the current items content to the list of items
+              itemID: item.item_ID,
+              revisionDate: item.revision_date,
+              content: item.content,
+              version: item.version,
+              userTags: userTags,
+              sysTags: sysTags
+            });
           });
         });
       } else {
         items = [];
       }
-      response.render("addItem", {items: items});
+
+      //When this triggers, all promises from all items have been resolved.
+      when.all(promises).then(function () {
+        response.render("addItem", {items: items});
+      });
+
     });
   });
 });
@@ -127,40 +155,100 @@ router.get("*", function(request, response) {
 });
 
 //Save Item.
-router.post('/addItem', function(request, response){
-
+router.post('/addItem', function(request, response) {
   var item=JSON.parse(request.body.item);
+
+  //Update version number.
+  item.version = item.version + 1;
+
   console.log(item);
-  var itemID;
 
-  pool.query('INSERT INTO items SET ?', {version: 0, file_pointer: item.filePointer},
-   function (error, result, fields) {
-    if (error) throw error;
-    itemID = result.insertId;
-    console.log("Insert ID: " + result.insertId);
-
-    var tags = [];
-
-    //Add tags to single formatted array for pushing to database.
-    for (var i in item.userTags) {
-      tags.push([itemID, "userDef", item.userTags[i].trim()]);
-    }
-
-    for (var i in item.sysTags) {
-      tags.push([itemID, item.sysTags[i].key, item.sysTags[i].value.trim()]);
-    }
-
-    console.log("\nTags are: " + tags);
-
-    //Insert array of tags into tags table all at once.
-    pool.query("INSERT INTO tags (item_ID, `key`, `value`) VALUES ?", [tags],
-     function(error) {
+  if (item.version == 0) {  //New item.
+    pool.query('INSERT INTO items SET ?', {version: item.version},
+     function (error, result, fields) {
       if (error) throw error;
+      item.itemID = result.insertId;
+      console.log("Insert ID: " + item.itemID);
+      saveFile(item);
     });
-  });
+  } else {  //Update existing item.
+    pool.query('UPDATE items SET version = ? WHERE item_ID = ?', [item.version, item.itemID],
+     function (error, result, fields) {
+       if (error) throw error;
+       saveFile(item);
+     });
+  }
 
   response.end("yes");
 });
+
+function saveFile(item) {
+  var promises = [];
+
+  //Latches, which are 'resolved' when the async method they are assigned to finish.
+  //So we only save the item when the async stuff is finished.
+  var filesaveLatch = when.defer();
+  var tagLatch = when.defer();
+
+  //Save the file with the itemID.
+  filehandler.saveFile(item, function(error, item) {
+    if (error) return console.error(error);
+    console.log("resolving file save latch");
+    filesaveLatch.resolve();
+  });
+  promises.push(filesaveLatch.promise);
+
+  tags = [];
+
+  addTags(item, function(error, tagArray) {
+    if (error) return console.error(error);
+    tags = tagArray;
+    console.log("resolving Tag latch");
+    tagLatch.resolve();
+  });
+  promises.push(tagLatch.promise);
+
+
+  //When this triggers, all promises have been resolved.
+  when.all(promises).then(function () {
+    console.log('Finished Promises, uploading item');
+
+  //Insert array of tags into tags table all at once. (Ignore ignores duplicate inserts)
+  pool.query("INSERT IGNORE INTO tags (item_ID, `key`, `value`) VALUES ?", [tags],
+   function(error) {
+    if (error) {
+        throw error;
+      }
+    });
+
+  //Delete tags that are in the database but no longer in the list to be saved (I.E the user has removed it)
+  //Map isn't the greatest for compatability, so maybe need to implement a fallback method.
+  //Here it gets column 3 from tags, so we're left with an array of just the tag values check against in the query.
+  pool.query("DELETE FROM tags WHERE item_ID = ? AND `value` NOT IN ?", [item.itemID, [tags.map(x=> x[2])]],
+   function(error) {
+    if (error) {
+        throw error;
+      }
+    });
+  });
+}
+
+function addTags(item, callback) {
+  var tags = [];
+
+  //Add tags to single formatted array for pushing to database.
+  for (var i in item.userTags) {
+    tags.push([item.itemID, "userDef", item.userTags[i].trim()]);
+  }
+
+  for (var i in item.sysTags) {
+    tags.push([item.itemID, item.sysTags[i].key, item.sysTags[i].value.trim()]);
+  }
+
+  console.log(tags);
+
+  callback(null, tags);
+}
 
 app.use("/",router);
 

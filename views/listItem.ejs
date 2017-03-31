@@ -22,7 +22,7 @@
         + "/" + item.revisionDate.getMonth() + "/" + item.revisionDate.getFullYear() %>
       </small>
     </div>
-    <p class="mb-1"><%= item.filePointer %></p>
+    <p class="mb-1"><%= item.content %></p>
     <small> <!--List tags-->
       <%for (var userTag in item.userTags){%>
         <%=item.userTags[userTag] + ", "%>
