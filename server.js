@@ -155,12 +155,12 @@ router.get("*", function(request, response) {
 });
 
 //Save Item.
-router.post('/addItem', function(request, response){
+router.post('/addItem', function(request, response) {
   var item=JSON.parse(request.body.item);
 
   //Update version number.
   item.version = item.version + 1;
-  
+
   console.log(item);
 
   if (item.version == 0) {  //New item.
