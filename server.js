@@ -125,6 +125,7 @@ router.get('/addItem', function(request, response) {
       when.all(promises).then(function () {
         response.render("addItem", {items: items});
       });
+
     });
   });
 });
@@ -137,20 +138,20 @@ function tagsItem(tag) {
 }
 
 router.get("*", function(request, response) {
-  //If the file path exists, serve the html file, otherwise serve 404.
-  var filePath = path + request.url;
+   //If the file path exists, serve the html file, otherwise serve 404.
+   var filePath = path + request.url;
 
-  if(filePath.indexOf('.') == -1)
-  {
-  //Period found.
-  filePath += ".html"
-  }
+   if(filePath.indexOf('.') == -1)
+   {
+    //Period found.
+    filePath += ".html"
+   }
 
-  if(fs.existsSync(filePath)) {
-   response.sendFile(filePath);
-  } else {
-   response.sendFile(path + "404.html");
-  }
+   if(fs.existsSync(filePath)) {
+     response.sendFile(filePath);
+   } else {
+     response.render("404");
+   }
 });
 
 //Save Item.
@@ -159,7 +160,7 @@ router.post('/addItem', function(request, response){
 
   //Update version number.
   item.version = item.version + 1;
-
+  
   console.log(item);
 
   if (item.version == 0) {  //New item.
