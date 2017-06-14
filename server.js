@@ -32,7 +32,7 @@ router.use(function (request, response, next) {
 });
 
 router.get('/', function(request, response) {
-  response.send('Root page, /addData to add data')
+  response.send('Root page, /addItem to add data')
 });
 
 router.get('/viewItem/:itemID', function(request, response) {
