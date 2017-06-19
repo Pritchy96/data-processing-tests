@@ -10,33 +10,33 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-sm-3">
-          <% if (item) { %>
-            <h1><%= item.itemID %></h1>
-            ID: <%= item.itemID %><br>
-            Version: <%= item.version %><br>
-            Creation Date: <%= item.creation_date %><br>
-            Revision Date: <%= item.revision_date %><br>
-            File content: <%= item.content %><br>
+          <% if (node) { %>
+            <h1><%= node.nodeID %></h1>
+            ID: <%= node.nodeID %><br>
+            Version: <%= node.version %><br>
+            Creation Date: <%= node.creation_date %><br>
+            Revision Date: <%= node.revision_date %><br>
+            File content: <%= node.content %><br>
             Tags:
             <ul>
-            <% item.tags.forEach(function(tag) { %>
+            <% node.tags.forEach(function(tag) { %>
               <li><%= tag.key %>: <%= tag.value %></li>
             <% }); %>
             </ul>
           <% } else { %>
             <h1>Error</h1>
-            No such item
+            No such node
           <% } %>
         </div>
 
-        <!-- Add item fields -->
+        <!-- Add node fields -->
         <div class="col-sm-7">
           <h1>Stuff</h1>
           <div class="container-fluid">
-          <% if (item) { %>
-            <%= item.content %>
+          <% if (node) { %>
+            <%= node.content %>
           <% } else { %>
-            No item
+            No node
           <% } %>
           </div>
         </div>

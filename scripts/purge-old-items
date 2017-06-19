@@ -1,2 +1,2 @@
 #!/bin/bash
-echo "DELETE FROM items WHERE 100 < DATEDIFF(CURRENT_TIMESTAMP, delete_date);" | mysql -u root -p data
+echo "DELETE FROM nodes WHERE 100 < DATEDIFF(CURRENT_TIMESTAMP, delete_date);" | mysql -u root -p data

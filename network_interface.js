@@ -7,7 +7,6 @@ var filehandler = new fh();
 var when = require('when');
 
 var app = express();
-app.set('view engine', 'ejs');
 var router = express.Router();
 var path = __dirname + '/views/';
 var bodyParser = require('body-parser')  ;
@@ -35,6 +34,7 @@ router.get('/', function(request, response) {
   response.send('Root page, /addNode to add data')
 });
 
+//Debug method to view any one Node.
 router.get('/viewNode/:nodeID', function(request, response) {
   pool.query('select * from nodes where node_ID = ?', [request.params.nodeID], function(err, rows) {
     pool.query('select * from tags where node_ID = ?', [request.params.nodeID], function(err, tags) {
@@ -66,10 +66,13 @@ router.get('/viewNode/:nodeID', function(request, response) {
   });
 });
 
-router.get('/addNode', function(request, response) {
-  pool.query('select * from nodes', function(err, nodeRes) {
-    pool.query('select * from tags', function(err, tagRes) {
+router.get('/getNodeById', function(request, response) {
+  //pool.query('select * from nodes', function(err, nodeRes) {
+  //  pool.query('select * from tags', function(err, tagRes) {
 
+  console.log(request.query.node_id);
+  pool.query('SELECT * FROM nodes WHERE node_ID = ?', [request.query.node_id], function(err, nodeRes) {
+    pool.query('SELECT * FROM tags WHERE node_ID = ?', [request.query.node_id], function(err, tagRes) {
       var promises = [], nodes = [];
 
       if (nodeRes[0]) { //Only bother if there are some nodes returned
@@ -94,7 +97,7 @@ router.get('/addNode', function(request, response) {
           var userTags = [], sysTags = [];
 
           if (tagRes[0]) {
-            var nodeTags = tagRes.filter(tagsNode, node); //Run the tagsNode method on tagRes, setting 'this' within the method to
+            var nodeTags = tagRes.filter(isTagOfNode, node); //Run the isTagOfNode method on tagRes, setting 'this' within the method to
             //Split Node tags into User and System Tags
             for (var i in nodeTags) {
               if (nodeTags[i].key == "userDef") {
@@ -123,39 +126,23 @@ router.get('/addNode', function(request, response) {
 
       //When this triggers, all promises from all nodes have been resolved.
       when.all(promises).then(function () {
-        response.render("addNode", {nodes: nodes});
+        response.send(nodes);
       });
 
     });
   });
 });
 
-//Runs through an array of tags, and checks if node.node_ID == tag.nodeID.
-function tagsNode(tag) {
-  //This is set by the second parameter that calls this function.
+//checks if node(this).node_ID == tag.nodeID. Used in getNodeById, returns bool
+function isTagOfNode(tag) {
+  //'this' is set by the second parameter that calls this function.
   //God knows why. In this case it will be an node that we're creating.
   return this.node_ID == tag.node_ID;
 }
 
-router.get("*", function(request, response) {
-   //If the file path exists, serve the html file, otherwise serve 404.
-   var filePath = path + request.url;
+//router.get("*", function(request, response) { });
 
-   if(filePath.indexOf('.') == -1)
-   {
-    //Period found.
-    filePath += ".html"
-   }
-
-   if(fs.existsSync(filePath)) {
-     response.sendFile(filePath);
-   } else {
-     response.render("404");
-   }
-});
-
-//Save Node.
-router.post('/addNode', function(request, response) {
+router.post('/saveNode', function(request, response) {
   var node=JSON.parse(request.body.node);
 
   //Update version number.
@@ -200,7 +187,7 @@ function saveFile(node) {
 
   tags = [];
 
-  addTags(node, function(error, tagArray) {
+  addTagsToNode(node, function(error, tagArray) {
     if (error) return console.error(error);
     tags = tagArray;
     console.log("resolving Tag latch");
@@ -233,7 +220,7 @@ function saveFile(node) {
   });
 }
 
-function addTags(node, callback) {
+function addTagsToNode(node, callback) {
   var tags = [];
 
   //Add tags to single formatted array for pushing to database.

@@ -1,45 +1,45 @@
 var fs = require('fs');
 
 var filehandler = function (){
-   this.saveFile = function (item, callback){
+   this.saveFile = function (node, callback){
      var root = 'filestore';
 
       if (!fs.existsSync(root)){
           fs.mkdirSync(root);
       }
 
-      //Path is the unique ID of the item in the databse.
-      var itemFolder = root + "/" + item.itemID;
+      //Path is the unique ID of the node in the databse.
+      var nodeFolder = root + "/" + node.nodeID;
 
-      if (!fs.existsSync(itemFolder)){
-          fs.mkdirSync(itemFolder);
+      if (!fs.existsSync(nodeFolder)){
+          fs.mkdirSync(nodeFolder);
       }
 
       //Handle file extensions here?
-      fs.writeFile(itemFolder + "/" + item.version, item.content, function(err) {
+      fs.writeFile(nodeFolder + "/" + node.version, node.content, function(err) {
          if(err) {
              return console.log(err);
              //If there is an error here, we're in trouble, as the files data will
              //already have been written to the database. Need some way to do tis synchronously,
-             //Or remove the item from database and present error here.
+             //Or remove the node from database and present error here.
          }
 
          console.log("File saved.");
-         callback(null, item);
+         callback(null, node);
      });
    };
 
-   //Loads the content of an item from the filestore, given the items database entry.
-   this.loadFile = function (item, callback) {
+   //Loads the content of an node from the filestore, given the nodes database entry.
+   this.loadFile = function (node, callback) {
 
-     if (item.item_ID == null || item.version == null) {
-       return console.error("item does not have id or version, cannot load")
+     if (node.node_ID == null || node.version == null) {
+       return console.error("node does not have id or version, cannot load")
      }
 
-      var itemLocation = "filestore/" + item.item_ID + "/" + item.version;
+      var nodeLocation = "filestore/" + node.node_ID + "/" + node.version;
 
       //Specify an encoding to return a string, or not to return an ASCII buffer.
-      fs.readFile( itemLocation, { encoding: 'utf8' }, function (err, content) {
+      fs.readFile( nodeLocation, { encoding: 'utf8' }, function (err, content) {
         if (err) {
           throw err;
         }
