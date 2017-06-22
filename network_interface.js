@@ -212,7 +212,7 @@ router.post('/deleteNode', function(request, response) {
 
     pool.query('UPDATE nodes SET delete_date = CURRENT_TIMESTAMP WHERE node_ID = ?', [node.nodeID],
      function (error, result, fields) {
-       if (error) throw error;
+       if (error) return console.error(error);
      });
 
   response.end();
@@ -224,7 +224,7 @@ router.post('/restoreNode', function(request, response) {
 
     pool.query('UPDATE nodes SET delete_date = NULL WHERE node_ID = ?', [node.nodeID],
      function (error, result, fields) {
-       if (error) throw error;
+       if (error) return console.error(error);
      });
 
   response.end();
@@ -241,7 +241,7 @@ router.post('/saveNode', function(request, response) {
   if (node.version == 0) {  //New node.
     pool.query('INSERT INTO nodes SET ?', {version: node.version},
      function (error, result, fields) {
-      if (error) throw error;
+      if (error) return console.error(error);
       node.nodeID = result.insertId;
       console.log("Insert ID: " + node.nodeID);
       saveFile(node);
@@ -249,7 +249,7 @@ router.post('/saveNode', function(request, response) {
   } else {  //Update existing node.
     pool.query('UPDATE nodes SET version = ? WHERE node_ID = ?', [node.version, node.nodeID],
      function (error, result, fields) {
-       if (error) throw error;
+       if (error) return console.error(error);
        saveFile(node);
      });
   }
@@ -315,7 +315,7 @@ function updateTags (tags, nodeID) {
   //Insert array of tags into tags table all at once. (Ignore ignores duplicate inserts)
   pool.query("INSERT IGNORE INTO tags (node_ID, `key`, `value`) VALUES ?", [tags],
    function(error) {
-    if (error) {  throw error;  }
+    if (error) console.error(error);
   });
 
   //Delete tags that are in the database but no longer in the list to be saved (I.E the user has removed it)
@@ -323,7 +323,7 @@ function updateTags (tags, nodeID) {
   //Here it gets column 3 from tags, so we're left with an array of just the tag values check against in the query.
   pool.query("DELETE FROM tags WHERE node_ID = ? AND `value` NOT IN ?", [nodeID, [tags.map(x=> x[2])]],
    function(error) {
-    if (error) {  throw error;  }
+    if (error) console.error(error);
   });
 }
 

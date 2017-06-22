@@ -60,8 +60,8 @@ router.get('/viewNode/:nodeID', function(request, response) {
           });
         });
       } else {
-        params = { node : null };
       }
+      params = { node : null };
     });
     response.render("viewNode", params);
   });
@@ -126,7 +126,6 @@ router.get('/addNode', function(request, response) {
       when.all(promises).then(function () {
         response.render("addNode", {nodes: nodes});
       });
-
     });
   });
 });
@@ -165,6 +164,7 @@ router.post('/addNode', function(request, response) {
   console.log(node);
 
   if (node.version == 0) {  //New node.
+    console.log("this is a new node");
     pool.query('INSERT INTO nodes SET ?', {version: node.version},
      function (error, result, fields) {
       if (error) throw error;
@@ -173,6 +173,8 @@ router.post('/addNode', function(request, response) {
       saveFile(node);
     });
   } else {  //Update existing node.
+    console.log("this is an existing node");
+
     pool.query('UPDATE nodes SET version = ? WHERE node_ID = ?', [node.version, node.nodeID],
      function (error, result, fields) {
        if (error) throw error;
@@ -217,6 +219,7 @@ function saveFile(node) {
 //Adds any new tags in the list, and removes any tags that are not.
 function updateTags (tags, nodeID) {
   console.log('Finished Promises, uploading node');
+  console.log(tags);
 
   //Insert array of tags into tags table all at once. (Ignore ignores duplicate inserts)
   pool.query("INSERT IGNORE INTO tags (node_ID, `key`, `value`) VALUES ?", [tags],

@@ -15,7 +15,7 @@ CREATE TABLE tags (
   node_ID INT(11) NOT NULL,
   `key` CHAR(100) NOT NULL,
   `value` CHAR(100) NOT NULL,
-  UNIQUE KEY unique_tags (node_ID, `value`), #Ensures any given node doesn't have duplicate tags.
+  UNIQUE KEY unique_tags (node_ID, `key`, `value`), #Ensures any given node doesn't have duplicate tags.
   PRIMARY KEY (tag_ID),
   FOREIGN KEY (node_ID) REFERENCES nodes(node_ID)
 );
