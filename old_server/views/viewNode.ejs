@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <% include head.ejs %>
+  </head>
+  <body>
+    <% include mainNavbar.ejs %>
+
+    <!-- Master container -->
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3">
+          <% if (node) { %>
+            <h1><%= node.nodeID %></h1>
+            ID: <%= node.nodeID %><br>
+            Version: <%= node.version %><br>
+            Creation Date: <%= node.creation_date %><br>
+            Revision Date: <%= node.revision_date %><br>
+            File content: <%= node.content %><br>
+            Tags:
+            <ul>
+            <% node.tags.forEach(function(tag) { %>
+              <li><%= tag.key %>: <%= tag.value %></li>
+            <% }); %>
+            </ul>
+          <% } else { %>
+            <h1>Error</h1>
+            No such node
+          <% } %>
+        </div>
+
+        <!-- Add node fields -->
+        <div class="col-sm-7">
+          <h1>Stuff</h1>
+          <div class="container-fluid">
+          <% if (node) { %>
+            <%= node.content %>
+          <% } else { %>
+            No node
+          <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
