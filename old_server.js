@@ -15,7 +15,7 @@ var bodyParser = require('body-parser')  ;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-// First you need to create a connection to the db
+//First you need to create a connection to the db.
 var mysqlParams = {
   connectionLimit: 30,
   host: "localhost",
@@ -167,7 +167,7 @@ router.post('/addNode', function(request, response) {
     console.log("this is a new node");
     pool.query('INSERT INTO nodes SET ?', {version: node.version},
      function (error, result, fields) {
-      if (error) throw error;
+      if (error) return console.error(error);
       node.nodeID = result.insertId;
       console.log("Insert ID: " + node.nodeID);
       saveFile(node);
@@ -177,7 +177,7 @@ router.post('/addNode', function(request, response) {
 
     pool.query('UPDATE nodes SET version = ? WHERE node_ID = ?', [node.version, node.nodeID],
      function (error, result, fields) {
-       if (error) throw error;
+       if (error) return console.error(error);
        saveFile(node);
      });
   }

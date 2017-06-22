@@ -39,11 +39,8 @@ var filehandler = function (){
       var nodeLocation = "filestore/" + node.node_ID + "/" + node.version;
 
       //Specify an encoding to return a string, or not to return an ASCII buffer.
-      fs.readFile( nodeLocation, { encoding: 'utf8' }, function (err, content) {
-        if (err) {
-          throw err;
-        }
-
+      fs.readFile( nodeLocation, { encoding: 'utf8' }, function (error, content) {
+        if (error) return console.error(error);
         callback(null, content);
       });
    };

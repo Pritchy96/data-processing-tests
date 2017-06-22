@@ -8,7 +8,6 @@ var when = require('when');
 
 var app = express();
 var router = express.Router();
-var path = __dirname + '/views/';
 var bodyParser = require('body-parser')  ;
 
 app.use(bodyParser.json());
@@ -32,39 +31,7 @@ router.use(function (request, response, next) {
 });
 
 router.get('/', function(request, response) {
-  response.send('Root page, /addNode to add data')
-});
-
-//Debug method to view any one Node.
-router.get('/viewNode/:nodeID', function(request, response) {
-  pool.query('select * from nodes where node_ID = ?', [request.params.nodeID], function(err, rows) {
-    pool.query('select * from tags where node_ID = ?', [request.params.nodeID], function(err, tags) {
-      var params = {};
-      if (rows[0]) {
-         params = {
-          node: {
-            nodeID: request.params.nodeID,
-            version: rows[0].version,
-            filePointer: rows[0].file_pointer,
-            creationDate: rows[0].creation_date,
-            revisionDate: rows[0].revision_date,
-            tags: []
-          }
-        };
-        tags.forEach(function(tag) {
-          params.node.tags.push({
-            tagID: tag.tag_ID,
-            nodeID: tag.node_ID,
-            key: tag.key,
-            value: tag.value
-          });
-        });
-      } else {
-        params = { node : null };
-      }
-      response.render("viewNode", params);
-    });
-  });
+  response.send('Welcome to MOIRA.')
 });
 
 router.get('/getNodeById', function(request, response) {
@@ -127,7 +94,7 @@ router.get('/getNodeById', function(request, response) {
 
       //When this triggers, all promises from all nodes have been resolved.
       when.all(promises).then(function () {
-        response.send(nodes[0]); //Only one node should be returned.
+        response.send(JSON.Stringify(nodes[0])); //Only one node should be returned.
       });
     });
   });
@@ -191,7 +158,7 @@ router.get('/getAllNodes', function(request, response) {
 
       //When this triggers, all promises from all nodes have been resolved.
       when.all(promises).then(function () {
-        response.send(nodes);
+        response.send(JSON.Stringify(nodes));
       });
     });
   });
@@ -204,7 +171,7 @@ function isTagOfNode(tag) {
   return this.node_ID == tag.node_ID;
 }
 
-//router.get("*", function(request, response) {});
+//Router.get("*", function(request, response) {});
 
 //Set the delete date on the node, starting its purge timer.
 router.post('/deleteNode', function(request, response) {
