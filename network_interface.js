@@ -94,7 +94,7 @@ router.get('/getNodeById', function(request, response) {
 
       //When this triggers, all promises from all nodes have been resolved.
       when.all(promises).then(function () {
-        response.send(JSON.Stringify(nodes[0])); //Only one node should be returned.
+        response.send(JSON.stringify(nodes[0])); //Only one node should be returned.
       });
     });
   });
@@ -158,7 +158,7 @@ router.get('/getAllNodes', function(request, response) {
 
       //When this triggers, all promises from all nodes have been resolved.
       when.all(promises).then(function () {
-        response.send(JSON.Stringify(nodes));
+        response.send(JSON.stringify(nodes));
       });
     });
   });
