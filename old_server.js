@@ -211,7 +211,6 @@ function saveFile(node) {
   });
   promises.push(tagLatch.promise);
 
-
   //When this triggers, all promises have been resolved.
   when.all(promises).then(updateTags(tags, node.nodeID));
 }

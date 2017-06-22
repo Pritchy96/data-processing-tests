@@ -3,7 +3,7 @@ use data;
 CREATE TABLE nodes (
   node_ID INT(11) NOT NULL AUTO_INCREMENT,
   version INT(11),
-  file_pointer CHAR(255) NOT NULL,
+  #file_pointer CHAR(255) NOT NULL,
   creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   revision_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   delete_date   TIMESTAMP NULL,
