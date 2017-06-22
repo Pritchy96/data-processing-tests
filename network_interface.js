@@ -128,22 +128,45 @@ router.get('/getNodeById', function(request, response) {
       when.all(promises).then(function () {
         response.send(nodes);
       });
-
     });
   });
 });
 
-//checks if node(this).node_ID == tag.nodeID. Used in getNodeById, returns bool
+//Checks if node(this).node_ID == tag.nodeID. Used in getNodeById, returns a bool
 function isTagOfNode(tag) {
   //'this' is set by the second parameter that calls this function.
   //God knows why. In this case it will be an node that we're creating.
   return this.node_ID == tag.node_ID;
 }
 
-//router.get("*", function(request, response) { });
+//router.get("*", function(request, response) {});
+
+//Set the delete date on the node, starting its purge timer.
+router.get('/deleteNode', function(request, response) {
+  console.log(request.query.node_id);
+
+    pool.query('UPDATE nodes SET delete_date = CURRENT_TIMESTAMP WHERE node_ID = ?', [node.nodeID],
+     function (error, result, fields) {
+       if (error) throw error;
+     });
+
+  response.end("yes");
+});
+
+//Remove the delete date from a node, restoring it.
+router.get('/restoreNode', function(request, response) {
+  console.log(request.query.node_id);
+
+    pool.query('UPDATE nodes SET delete_date = NULL WHERE node_ID = ?', [node.nodeID],
+     function (error, result, fields) {
+       if (error) throw error;
+     });
+
+  response.end("yes");
+});
 
 router.post('/saveNode', function(request, response) {
-  var node=JSON.parse(request.body.node);
+  var node = JSON.parse(request.body.node);
 
   //Update version number.
   node.version = node.version + 1;
@@ -169,13 +192,14 @@ router.post('/saveNode', function(request, response) {
   response.end("yes");
 });
 
+//Saves file (and updates tags).
 function saveFile(node) {
   var promises = [];
 
   //Latches, which are 'resolved' when the async method they are assigned to finish.
   //So we only save the node when the async stuff is finished.
   var filesaveLatch = when.defer();
-  var tagLatch = when.defer();
+  var tagLatch = when.defer();  //Moves the sysTags and userTags to a single array for saving to db.
 
   //Save the file with the nodeID.
   filehandler.saveFile(node, function(error, node) {
@@ -187,7 +211,7 @@ function saveFile(node) {
 
   tags = [];
 
-  addTagsToNode(node, function(error, tagArray) {
+  moveTagsToSingleArray(node, function(error, tagArray) {
     if (error) return console.error(error);
     tags = tagArray;
     console.log("resolving Tag latch");
@@ -195,32 +219,13 @@ function saveFile(node) {
   });
   promises.push(tagLatch.promise);
 
-
   //When this triggers, all promises have been resolved.
-  when.all(promises).then(function () {
-    console.log('Finished Promises, uploading node');
-
-  //Insert array of tags into tags table all at once. (Ignore ignores duplicate inserts)
-  pool.query("INSERT IGNORE INTO tags (node_ID, `key`, `value`) VALUES ?", [tags],
-   function(error) {
-    if (error) {
-        throw error;
-      }
-    });
-
-  //Delete tags that are in the database but no longer in the list to be saved (I.E the user has removed it)
-  //Map isn't the greatest for compatability, so maybe need to implement a fallback method.
-  //Here it gets column 3 from tags, so we're left with an array of just the tag values check against in the query.
-  pool.query("DELETE FROM tags WHERE node_ID = ? AND `value` NOT IN ?", [node.nodeID, [tags.map(x=> x[2])]],
-   function(error) {
-    if (error) {
-        throw error;
-      }
-    });
-  });
+  //Update tags last, so that if the node updating fails we don't update these.
+  when.all(promises).then(updateTags(tags, node.nodeID));
 }
 
-function addTagsToNode(node, callback) {
+ //Moves the sysTags and userTags to a single array for saving to db.
+function moveTagsToSingleArray(node, callback) {
   var tags = [];
 
   //Add tags to single formatted array for pushing to database.
@@ -235,6 +240,25 @@ function addTagsToNode(node, callback) {
   console.log(tags);
 
   callback(null, tags);
+}
+
+//Adds any new tags in the list, and removes any tags that are not.
+function updateTags (tags, nodeID) {
+  console.log('Finished Promises, uploading node');
+
+  //Insert array of tags into tags table all at once. (Ignore ignores duplicate inserts)
+  pool.query("INSERT IGNORE INTO tags (node_ID, `key`, `value`) VALUES ?", [tags],
+   function(error) {
+    if (error) {  throw error;  }
+  });
+
+  //Delete tags that are in the database but no longer in the list to be saved (I.E the user has removed it)
+  //Map isn't the greatest for compatability, so maybe need to implement a fallback method.
+  //Here it gets column 3 from tags, so we're left with an array of just the tag values check against in the query.
+  pool.query("DELETE FROM tags WHERE node_ID = ? AND `value` NOT IN ?", [nodeID, [tags.map(x=> x[2])]],
+   function(error) {
+    if (error) {  throw error;  }
+  });
 }
 
 app.use("/",router);

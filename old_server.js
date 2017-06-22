@@ -156,7 +156,7 @@ router.get("*", function(request, response) {
 
 //Save Node.
 router.post('/addNode', function(request, response) {
-  var node=JSON.parse(request.body.node);
+  var node = JSON.parse(request.body.node);
 
   //Update version number.
   node.version = node.version + 1;
@@ -200,7 +200,7 @@ function saveFile(node) {
 
   tags = [];
 
-  addTags(node, function(error, tagArray) {
+  moveTagsToSingleArray(node, function(error, tagArray) {
     if (error) return console.error(error);
     tags = tagArray;
     console.log("resolving Tag latch");
@@ -210,30 +210,29 @@ function saveFile(node) {
 
 
   //When this triggers, all promises have been resolved.
-  when.all(promises).then(function () {
-    console.log('Finished Promises, uploading node');
+  when.all(promises).then(updateTags(tags, node.nodeID));
+}
+
+//Adds any new tags in the list, and removes any tags that are not.
+function updateTags (tags, nodeID) {
+  console.log('Finished Promises, uploading node');
 
   //Insert array of tags into tags table all at once. (Ignore ignores duplicate inserts)
   pool.query("INSERT IGNORE INTO tags (node_ID, `key`, `value`) VALUES ?", [tags],
    function(error) {
-    if (error) {
-        throw error;
-      }
-    });
+    if (error) {  throw error;  }
+  });
 
   //Delete tags that are in the database but no longer in the list to be saved (I.E the user has removed it)
   //Map isn't the greatest for compatability, so maybe need to implement a fallback method.
   //Here it gets column 3 from tags, so we're left with an array of just the tag values check against in the query.
-  pool.query("DELETE FROM tags WHERE node_ID = ? AND `value` NOT IN ?", [node.nodeID, [tags.map(x=> x[2])]],
+  pool.query("DELETE FROM tags WHERE node_ID = ? AND `value` NOT IN ?", [nodeID, [tags.map(x=> x[2])]],
    function(error) {
-    if (error) {
-        throw error;
-      }
-    });
+    if (error) {  throw error;  }
   });
 }
 
-function addTags(node, callback) {
+function moveTagsToSingleArray(node, callback) {
   var tags = [];
 
   //Add tags to single formatted array for pushing to database.
