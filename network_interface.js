@@ -22,6 +22,7 @@ var mysqlParams = {
   password: "ayylmao",
   database: "data"
 };
+
 var pool = mysql.createPool(mysqlParams);
 
 router.use(function (request, response, next) {
@@ -126,6 +127,70 @@ router.get('/getNodeById', function(request, response) {
 
       //When this triggers, all promises from all nodes have been resolved.
       when.all(promises).then(function () {
+        response.send(nodes[0]); //Only one node should be returned.
+      });
+    });
+  });
+});
+
+//This should be a temporary method, to be replaced with tag based searching, etc.
+router.get('/getAllNodes', function(request, response) {
+  pool.query('select * from nodes', function(err, nodeRes) {
+    pool.query('select * from tags', function(err, tagRes) {
+
+      var promises = [], nodes = [];
+
+      if (nodeRes[0]) { //Only bother if there are some nodes returned
+        nodeRes.forEach(function(node) {
+
+          //Latches, which are 'resolved' when the async method they are assigned to finish.
+          //So we only save the node when the async stuff is finished.
+          var fileloadLatch = when.defer();
+
+          filehandler.loadFile(node, function(error, content) {
+            if (error) console.error(error);
+
+            node.content = content;
+            console.log("node content (in callback): ");
+            console.log(content);
+
+            fileloadLatch.resolve();
+          });
+
+          promises.push(fileloadLatch.promise);
+
+          var userTags = [], sysTags = [];
+
+          if (tagRes[0]) {
+            var nodeTags = tagRes.filter(isTagOfNode, node); //Run the isTagOfNode method on tagRes, setting 'this' within the method to
+            //Split Node tags into User and System Tags
+            for (var i in nodeTags) {
+              if (nodeTags[i].key == "userDef") {
+                userTags.push(nodeTags[i].value);
+              } else {
+                sysTags.push({key: nodeTags[i].key, value: nodeTags[i].value});
+              }
+            }
+          }
+
+          //When this triggers, all promises for the current node have been resolved.
+          when.all(promises).then(function () {
+            nodes.push({  //Push the current nodes content to the list of nodes
+              nodeID: node.node_ID,
+              revisionDate: node.revision_date,
+              content: node.content,
+              version: node.version,
+              userTags: userTags,
+              sysTags: sysTags
+            });
+          });
+        });
+      } else {
+        nodes = [];
+      }
+
+      //When this triggers, all promises from all nodes have been resolved.
+      when.all(promises).then(function () {
         response.send(nodes);
       });
     });
@@ -142,7 +207,7 @@ function isTagOfNode(tag) {
 //router.get("*", function(request, response) {});
 
 //Set the delete date on the node, starting its purge timer.
-router.get('/deleteNode', function(request, response) {
+router.post('/deleteNode', function(request, response) {
   console.log(request.query.node_id);
 
     pool.query('UPDATE nodes SET delete_date = CURRENT_TIMESTAMP WHERE node_ID = ?', [node.nodeID],
@@ -150,11 +215,11 @@ router.get('/deleteNode', function(request, response) {
        if (error) throw error;
      });
 
-  response.end("yes");
+  response.end();
 });
 
 //Remove the delete date from a node, restoring it.
-router.get('/restoreNode', function(request, response) {
+router.post('/restoreNode', function(request, response) {
   console.log(request.query.node_id);
 
     pool.query('UPDATE nodes SET delete_date = NULL WHERE node_ID = ?', [node.nodeID],
@@ -162,7 +227,7 @@ router.get('/restoreNode', function(request, response) {
        if (error) throw error;
      });
 
-  response.end("yes");
+  response.end();
 });
 
 router.post('/saveNode', function(request, response) {
@@ -189,7 +254,7 @@ router.post('/saveNode', function(request, response) {
      });
   }
 
-  response.end("yes");
+  response.end();
 });
 
 //Saves file (and updates tags).
@@ -225,6 +290,7 @@ function saveFile(node) {
 }
 
  //Moves the sysTags and userTags to a single array for saving to db.
+
 function moveTagsToSingleArray(node, callback) {
   var tags = [];
 

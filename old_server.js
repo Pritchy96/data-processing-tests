@@ -23,6 +23,7 @@ var mysqlParams = {
   password: "ayylmao",
   database: "data"
 };
+
 var pool = mysql.createPool(mysqlParams);
 
 router.use(function (request, response, next) {
@@ -61,8 +62,8 @@ router.get('/viewNode/:nodeID', function(request, response) {
       } else {
         params = { node : null };
       }
-      response.render("viewNode", params);
     });
+    response.render("viewNode", params);
   });
 });
 
@@ -179,7 +180,7 @@ router.post('/addNode', function(request, response) {
      });
   }
 
-  response.end("yes");
+  response.end();
 });
 
 function saveFile(node) {
