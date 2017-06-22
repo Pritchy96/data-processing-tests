@@ -1,7 +1,7 @@
 function submitNode(nodeObj){
   console.log(nodeObj);
 
-  $.post("http://localhost:8080/addNode", {node : JSON.stringify(nodeObj)}, function(data){
+  $.post("http://34.212.2.169:8080/addNode", {node : JSON.stringify(nodeObj)}, function(data){
   });
 }
 
