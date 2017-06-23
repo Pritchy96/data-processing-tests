@@ -6,20 +6,32 @@
   } %>
 
 <div class="list-gritemoup scrollable">
-  <% if (nodes.length) {%>
-  <% nodes.forEach(function(node){ %>
+  <% console.log("Nodes after sending:");
+     console.log(nodes);
+     console.log("length: " + nodes.length);
+
+   if (nodes.length) {%>
+  <% nodes.forEach(function(node){
+    var revisionDate = new Date(node.revisionDate);
+    console.log("node in loop")
+    console.log(node);
+    console.log(revisionDate.getHours() + ":"
+      +  revisionDate.getMinutes() + " " + revisionDate.getDate()
+      + "/" + revisionDate.getMonth() + "/" + revisionDate.getFullYear());
+    %>
+
   <a onclick="loadNode(<%= JSON.stringify(node) %>)" class="list-group-item list-group-item-action flex-column align-nodes-start">
     <div class="d-flex w-100 justify-content-between">
-      <% if(node.sysTags.length > 0) {%>
+      <% if(node.sysTags.length > 0) { %>
         <h5 class="mb-1"><%= node.sysTags.find(getTitle).value %></h5>
       <%} else {%>
         <h5 class="mb-1">"No Title"</h5>
       <%}%>
 
       <!-- Date formatting -->
-      <small>Last Modified: <%= node.revisionDate.getHours() + ":"
-        +  node.revisionDate.getMinutes() + " " + node.revisionDate.getDate()
-        + "/" + node.revisionDate.getMonth() + "/" + node.revisionDate.getFullYear() %>
+      <small>Last Modified: <%= revisionDate.getHours() + ":"
+        +  revisionDate.getMinutes() + " " + revisionDate.getDate()
+        + "/" + revisionDate.getMonth() + "/" + revisionDate.getFullYear() %>
       </small>
     </div>
     <p class="mb-1"><%= node.content %></p>

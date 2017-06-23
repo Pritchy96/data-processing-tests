@@ -19,8 +19,12 @@
             File content: <%= node.content %><br>
             Tags:
             <ul>
-            <% node.tags.forEach(function(tag) { %>
+            <% node.sysTags.forEach(function(tag) { %>
               <li><%= tag.key %>: <%= tag.value %></li>
+            <% }); %>
+
+            <% node.userTags.forEach(function(tag) { %>
+              <li> UserDef: <%= tag %></li>
             <% }); %>
             </ul>
           <% } else { %>

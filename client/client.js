@@ -3,6 +3,7 @@ var mysql = require('mysql');
 var express = require('express');
 var fs = require('fs');
 var fh = require("./filehandler.js");
+var server = require("./serverQueries.js");
 var filehandler = new fh();
 var when = require('when');
 
@@ -10,14 +11,18 @@ var app = express();
 app.set('view engine', 'ejs');
 var router = express.Router();
 var path = __dirname + '/views/';
-var bodyParser = require('body-parser')  ;
+var bodyParser = require('body-parser');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-var serverOptions = {
-  host: 'http://34.212.2.169:8080',
-  path: '/viewNode/1'   //changed depending on the request.
+// First you need to create a connection to the db
+var mysqlParams = {
+  connectionLimit: 30,
+  host: "localhost",
+  user: "server",
+  password: "ayylmao",
+  database: "data"
 };
 
 var pool = mysql.createPool(mysqlParams);
@@ -29,98 +34,50 @@ router.use(function (request, response, next) {
 });
 
 router.get('/', function(request, response) {
-  response.send('Root page, /addNode to add data')
+  response.send('Root page, /addNode to add data');
 });
 
 router.get('/viewNode/:nodeID', function(request, response) {
+  var promises = [];
+  var params;
 
-      var params = {};
-      if (rows[0]) {
-         params = {
-          node: {
-            nodeID: request.params.nodeID,
-            version: rows[0].version,
-            filePointer: rows[0].file_pointer,
-            creationDate: rows[0].creation_date,
-            revisionDate: rows[0].revision_date,
-            tags: []
-          }
-        };
-        tags.forEach(function(tag) {
-          params.node.tags.push({
-            tagID: tag.tag_ID,
-            nodeID: tag.node_ID,
-            key: tag.key,
-            value: tag.value
-          });
-        });
-      } else {
-        params = { node : null };
-      }
+  //Latches, which are 'resolved' when the async method they are assigned to finish.
+  var serverQueryLatch = when.defer();
+  promises.push(serverQueryLatch.promise);
 
+  var path = '/getNodeById?node_id=' + request.params.nodeID;
+
+  server.request(path, 'GET', function(serverReply) {
+    serverQueryLatch.resolve();
+    params = { node : serverReply };
+  });
+
+  when.all(promises).then(function() {
+    console.log("addNode promises satisfied!");
     response.render("viewNode", params);
+  });
 });
 
 router.get('/addNode', function(request, response) {
-  pool.query('select * from nodes', function(err, nodeRes) {
-    pool.query('select * from tags', function(err, tagRes) {
+  var promises = [];
+  var nodes;
 
-      var promises = [], nodes = [];
+  //Latches, which are 'resolved' when the async method they are assigned to finish.
+  var serverQueryLatch = when.defer();
+  promises.push(serverQueryLatch.promise);
 
-      if (nodeRes[0]) { //Only bother if there are some nodes returned
-        nodeRes.forEach(function(node) {
+  var path = '/getAllNodes';
 
-          //Latches, which are 'resolved' when the async method they are assigned to finish.
-          //So we only save the node when the async stuff is finished.
-          var fileloadLatch = when.defer();
+  server.request(path, 'GET', function(serverReply) {
+    serverQueryLatch.resolve();
+    nodes = serverReply;
+  });
 
-          filehandler.loadFile(node, function(error, content) {
-            if (error) console.error(error);
-
-            node.content = content;
-            console.log("node content (in callback): ");
-            console.log(content);
-
-            fileloadLatch.resolve();
-          });
-
-          promises.push(fileloadLatch.promise);
-
-          var userTags = [], sysTags = [];
-
-          if (tagRes[0]) {
-            var nodeTags = tagRes.filter(tagsNode, node); //Run the tagsNode method on tagRes, setting 'this' within the method to
-            //Split Node tags into User and System Tags
-            for (var i in nodeTags) {
-              if (nodeTags[i].key == "userDef") {
-                userTags.push(nodeTags[i].value);
-              } else {
-                sysTags.push({key: nodeTags[i].key, value: nodeTags[i].value});
-              }
-            }
-          }
-
-          //When this triggers, all promises for the current node have been resolved.
-          when.all(promises).then(function () {
-            nodes.push({  //Push the current nodes content to the list of nodes
-              nodeID: node.node_ID,
-              revisionDate: node.revision_date,
-              content: node.content,
-              version: node.version,
-              userTags: userTags,
-              sysTags: sysTags
-            });
-          });
-        });
-      } else {
-        nodes = [];
-      }
-
-      //When this triggers, all promises from all nodes have been resolved.
-      when.all(promises).then(function () {
-        response.render("addNode", {nodes: nodes});
-      });
-    });
+  //When this triggers, all promises from all nodes have been resolved.
+  when.all(promises).then(function () {
+    console.log("Nodes before rendering: ");
+    console.log(nodes);
+    response.render("addNode", {nodes: nodes});
   });
 });
 
