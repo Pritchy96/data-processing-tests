@@ -12,15 +12,19 @@ exports.request = function(path, method, callback, postData) {
     method: method
   };
 
+  console.log("OPTION TYPE IS: " + options.method);
   if (options.method == 'POST') {
+    console.log("Setting up POST request");
+    console.log(postData);
     options.headers = {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Content-Length': Buffer.byteLength(postData)
+        'Content-Length': Buffer.byteLength(JSON.stringify(postData))
     }
   } else {
     options.headers = {}
   }
 
+    console.log(options);
 
   var req = http.request(options, function(res) {
     console.log('callback for server interaction');
@@ -48,7 +52,8 @@ exports.request = function(path, method, callback, postData) {
   });
 
   if (options.method == 'POST') {
-    req.write(JSON.stringify(postData));
+    req.write(postData);
   }
+
   req.end();
 }
