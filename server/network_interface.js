@@ -80,7 +80,7 @@ router.get('/getNodeById', function(request, response) {
           when.all(promises).then(function () {
             nodes.push({  //Push the current nodes content to the list of nodes
               nodeID: node.node_ID,
-              revisionDate: node.revision_date.toUTCString(),
+              revisionDate: node.revision_date.toISOString(),
               content: node.content,
               version: node.version,
               userTags: userTags,
@@ -144,7 +144,7 @@ router.get('/getAllNodes', function(request, response) {
           when.all(promises).then(function () {
             nodes.push({  //Push the current nodes content to the list of nodes
               nodeID: node.node_ID,
-              revisionDate: node.revision_date.toUTCString(),
+              revisionDate: node.revision_date.toISOString(),
               content: node.content,
               version: node.version,
               userTags: userTags,
