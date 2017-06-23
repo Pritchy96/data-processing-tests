@@ -12,15 +12,7 @@
 
    if (nodes.length) {%>
   <% nodes.forEach(function(node){
-    var revisionDate = new Date(node.revisionDate);
-    console.log("node in loop")
-    console.log(node);
-    console.log(node.revisionDate);
-    console.log(revisionDate);
-    console.log(revisionDate.getHours() + ":"
-      +  revisionDate.getMinutes() + " " + revisionDate.getDate()
-      + "/" + revisionDate.getMonth() + "/" + revisionDate.getFullYear());
-    %>
+    var revisionDate = new Date(Date.parse(node.revisionDate)); %>
 
   <a onclick="loadNode(<%= JSON.stringify(node) %>)" class="list-group-item list-group-item-action flex-column align-nodes-start">
     <div class="d-flex w-100 justify-content-between">
@@ -30,10 +22,10 @@
         <h5 class="mb-1">"No Title"</h5>
       <%}%>
 
-      <!-- Date formatting -->
-      <small>Last Modified: <%= revisionDate.getHours() + ":"
-        +  revisionDate.getMinutes() + " " + revisionDate.getDate()
-        + "/" + revisionDate.getMonth() + "/" + revisionDate.getFullYear() %>
+      <!-- Date formatting, slice ensures only the last two digits are kept, ensuring dual digit dating -->
+      <small>Last Modified: <%= ('0' + revisionDate.getHours()).slice(-2) + ":"
+        + ('0' + revisionDate.getMinutes()).slice(-2) + " " + ('0' + revisionDate.getDate()).slice(-2) + "/"
+        + ('0' + (revisionDate.getMonth() + 1)).slice(-2) + "/" + ('0' + revisionDate.getFullYear()).slice(-2) %>
       </small>
     </div>
     <p class="mb-1"><%= node.content %></p>
