@@ -2,9 +2,7 @@ var http = require('http');
 var mysql = require('mysql');
 var express = require('express');
 var fs = require('fs');
-var fh = require("./filehandler.js");
 var server = require("./serverQueries.js");
-var filehandler = new fh();
 var when = require('when');
 
 var app = express();
@@ -43,7 +41,6 @@ router.get('/viewNode/:nodeID', function(request, response) {
 
   //Latches, which are 'resolved' when the async method they are assigned to finish.
   var serverQueryLatch = when.defer();
-  promises.push(serverQueryLatch.promise);
 
   var path = '/getNodeById?node_id=' + request.params.nodeID;
 
@@ -106,85 +103,19 @@ router.get("*", function(request, response) {
 });
 
 //Save Node.
-router.post('/addNode', function(request, response) {
-  var node = JSON.parse(request.body.node);
+router.post('/saveNode', function(request, response) {
+  var node = request.body.node;
 
-  //Update version number.
-  node.version = node.version + 1;
+  //Now send this to the MOIRA server.
+  var path = '/saveNode';
 
-  console.log(node);
-
-  if (node.version == 0) {  //New node.
-    console.log("this is a new node");
-    pool.query('INSERT INTO nodes SET ?', {version: node.version},
-     function (error, result, fields) {
-      if (error) return console.error(error);
-      node.nodeID = result.insertId;
-      console.log("Insert ID: " + node.nodeID);
-      saveFile(node);
-    });
-  } else {  //Update existing node.
-    console.log("this is an existing node");
-
-    pool.query('UPDATE nodes SET version = ? WHERE node_ID = ?', [node.version, node.nodeID],
-     function (error, result, fields) {
-       if (error) return console.error(error);
-       saveFile(node);
-     });
-  }
+  server.request(path, 'POST', function(serverReply) {
+    serverQueryLatch.resolve();
+    console.log(serverReply);
+  }, node);
 
   response.end();
 });
-
-function saveFile(node) {
-  var promises = [];
-
-  //Latches, which are 'resolved' when the async method they are assigned to finish.
-  //So we only save the node when the async stuff is finished.
-  var filesaveLatch = when.defer();
-  var tagLatch = when.defer();
-
-  //Save the file with the nodeID.
-  filehandler.saveFile(node, function(error, node) {
-    if (error) return console.error(error);
-    console.log("resolving file save latch");
-    filesaveLatch.resolve();
-  });
-  promises.push(filesaveLatch.promise);
-
-  tags = [];
-
-  moveTagsToSingleArray(node, function(error, tagArray) {
-    if (error) return console.error(error);
-    tags = tagArray;
-    console.log("resolving Tag latch");
-    tagLatch.resolve();
-  });
-  promises.push(tagLatch.promise);
-
-  //When this triggers, all promises have been resolved.
-  when.all(promises).then(updateTags(tags, node.nodeID));
-}
-
-//Adds any new tags in the list, and removes any tags that are not.
-function updateTags (tags, nodeID) {
-  console.log('Finished Promises, uploading node');
-  console.log(tags);
-
-  //Insert array of tags into tags table all at once. (Ignore ignores duplicate inserts)
-  pool.query("INSERT IGNORE INTO tags (node_ID, `key`, `value`) VALUES ?", [tags],
-   function(error) {
-    if (error) {  throw error;  }
-  });
-
-  //Delete tags that are in the database but no longer in the list to be saved (I.E the user has removed it)
-  //Map isn't the greatest for compatability, so maybe need to implement a fallback method.
-  //Here it gets column 3 from tags, so we're left with an array of just the tag values check against in the query.
-  pool.query("DELETE FROM tags WHERE node_ID = ? AND `value` NOT IN ?", [nodeID, [tags.map(x=> x[2])]],
-   function(error) {
-    if (error) {  throw error;  }
-  });
-}
 
 function moveTagsToSingleArray(node, callback) {
   var tags = [];

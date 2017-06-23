@@ -3,7 +3,7 @@ var http = require('http');
 //path is the path to the request from root, including query string
 //Method is the HTTP request type: GET, POST, etc
 //Callback is a method which is called with the response data after all data has been recieveed.
-exports.request = function(path, method, callback) {
+exports.request = function(path, method, callback, postData) {
 
   var options = {
     hostname: '34.212.2.169',
@@ -11,6 +11,16 @@ exports.request = function(path, method, callback) {
     path: path,
     method: method
   };
+
+  if (options.method == 'POST') {
+    options.headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(postData)
+    }
+  } else {
+    options.headers = {}
+  }
+
 
   var req = http.request(options, function(res) {
     console.log('callback for server interaction');
@@ -37,5 +47,8 @@ exports.request = function(path, method, callback) {
     //TODO: Error handling.
   });
 
+  if (options.method == 'POST') {
+    req.write(JSON.stringify(postData));
+  }
   req.end();
 }

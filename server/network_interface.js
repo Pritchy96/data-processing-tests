@@ -198,6 +198,7 @@ router.post('/restoreNode', function(request, response) {
 });
 
 router.post('/saveNode', function(request, response) {
+  console.log(request.body.node);
   var node = JSON.parse(request.body.node);
 
   //Update version number.
