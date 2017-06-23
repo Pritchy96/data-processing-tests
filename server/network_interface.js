@@ -11,7 +11,7 @@ var router = express.Router();
 var bodyParser = require('body-parser')  ;
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // First you need to create a connection to the db
 var mysqlParams = {
@@ -198,13 +198,16 @@ router.post('/restoreNode', function(request, response) {
 });
 
 router.post('/saveNode', function(request, response) {
-  console.log(request.body.node);
+  console.log("Reached MOIRA saveNode");
+  console.log(request.body);
+  console.log(JSON.parse(request.body));
+
+  console.log(JSON.parse(request.body).node);
+
   var node = JSON.parse(request.body.node);
 
   //Update version number.
   node.version = node.version + 1;
-
-  console.log(node);
 
   if (node.version == 0) {  //New node.
     pool.query('INSERT INTO nodes SET ?', {version: node.version},
@@ -221,7 +224,7 @@ router.post('/saveNode', function(request, response) {
        saveFile(node);
      });
   }
-
+  response.write("eyyy");
   response.end();
 });
 

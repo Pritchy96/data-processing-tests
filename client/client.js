@@ -104,7 +104,10 @@ router.get("*", function(request, response) {
 
 //Save Node.
 router.post('/saveNode', function(request, response) {
+  console.log("Reached client program server side save method");
   var node = request.body.node;
+  console.log(node);
+
 
   //Now send this to the MOIRA server.
   var path = '/saveNode';
@@ -112,7 +115,7 @@ router.post('/saveNode', function(request, response) {
   server.request(path, 'POST', function(serverReply) {
     serverQueryLatch.resolve();
     console.log(serverReply);
-  }, node);
+  }, JSON.parse(node));
 
   response.end();
 });

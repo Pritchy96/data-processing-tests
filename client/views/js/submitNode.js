@@ -1,7 +1,13 @@
+function submitNode(nodeObj){
+  console.log(nodeObj);
+
+  $.post("http://localhost:8080/saveNode", {'node' : JSON.stringify(nodeObj)}, function(data){
+  });
+}
+
 //Triggers on clicking 'save' button, pushes content of node back to server.js where it is caught with a POST reqeust.
 $(document).ready(function() {
   $("#button-save-node").click(function(){
-    console.log("save clicked");
     var node, sysTags = [], userTags = [], content;
 
     content = $("#nodeContent").val();
@@ -25,8 +31,6 @@ $(document).ready(function() {
       node.version = loadedNode.version;
     }
 
-    $.post("http://localhost:8080/saveNode", {node : JSON.stringify(node)}, function(data){
-      //Do redirect here.
-    });
+    submitNode(node);
   });
 });
