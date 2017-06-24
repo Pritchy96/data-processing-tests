@@ -199,7 +199,7 @@ router.post('/restoreNode', function(request, response) {
 
 router.post('/saveNode', function(request, response) {
   console.log("Reached MOIRA saveNode");
-  console.log(request.body.node);
+  console.log(request.body);
   var node = JSON.parse(request.body.node);
 
   //Update version number.
