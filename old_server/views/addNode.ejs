@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <% include head.ejs %>
+  </head>
+
+  <body class="container-fluid full-height">
+
+   <% include mainNavbar.ejs %>
+
+    <!-- Main Page Content -->
+    <div class="container-fluid container-fluid-nopad full-height main-panel">
+      <div class="row full-height">
+
+        <!-- Left Bar/Content Window -->
+        <div class="col-lg-3 full-height text-center scrollable" id="left-banner" >
+            <div class="voffset4">
+              <% include listNode.ejs %>
+            </div>
+        </div>
+
+        <!-- Right Content Window -->
+        <div class="col-lg-9 full-height" >
+          <!-- Note top bar -->
+          <div class="btn-group container-fluid voffset3" role="group" aria-label="Button group with nested dropdown">
+            <button type="button" class="btn btn-secondary" id="button-save-node">Save</button>
+            <button type="button" class="btn btn-secondary">Delete</button>
+
+            <div class="btn-group" role="group">
+              <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Dropdown </button>
+              <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                <a class  ="dropdown-item" href="#">Dropdown link</a>
+                <a class="dropdown-item" href="#">Dropdown link</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main note UI -->
+          <div class="container-fluid voffset3">
+            <!-- Node Title -->
+            <div class="input-group input-group-lg">
+              <span class="input-group-addon" id="sizing-addon1">Node Name</span>
+              <input type="text" class="form-control" placeholder="Node_Name" id="nodeTitle" aria-describedby="sizing-addon1">
+            </div>
+
+            <!-- Node Tags -->
+            <div class="input-group input-group-lg voffset3">
+              <span class="input-group-addon" id="sizing-addon1">Node Tag/s</span>
+              <input type="text" class="form-control" placeholder="Comma Separated List" id="nodeTags" aria-describedby="sizing-addon1">
+            </div>
+
+            <!-- Nodes Data -->
+            <textarea class="form-control text-entry voffset4" rows="20" placeholder="Insert data here" id="nodeContent"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="/js/submitNode.js"></script>
+    <script src="/js/loadNode.js"></script>
+  </body>
+</html>

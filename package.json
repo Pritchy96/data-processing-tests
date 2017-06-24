@@ -1,11 +1,13 @@
 {
   "name": "data-processing-tests",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "scripts": {
+    "network-interface": "node network_interface.js",
+    "old-server": "node old_server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "dependencies": {
     "body-parser": "^1.8.1",
     "ejs": "^2.5.5",
@@ -24,5 +26,5 @@
   "bugs": {
     "url": "https://github.com/Pritchy96/data-processing-tests/issues"
   },
-  "homepage": "https://github.com/Pritchy96/data-processing-tests#readme"
+  "homepage": "https://github.com/Pritchy96/data-processing-tests/wiki"
 }

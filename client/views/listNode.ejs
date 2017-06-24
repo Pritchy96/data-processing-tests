@@ -1,0 +1,46 @@
+<!-- Takes in an nodes array and prints them to a nice bar for browsing. -->
+
+<% //Returns the system tag that has the key 'Title'
+  function getTitle(tag) {
+    return tag.key == "title";
+  } %>
+
+<div class="list-gritemoup scrollable">
+  <% console.log("Nodes after sending:");
+     console.log(nodes);
+     console.log("length: " + nodes.length);
+
+   if (nodes.length) {%>
+  <% nodes.forEach(function(node){
+    var revisionDate = new Date(Date.parse(node.revisionDate)); %>
+
+  <a onclick="loadNode(<%= JSON.stringify(node) %>)" class="list-group-item list-group-item-action flex-column align-nodes-start">
+    <div class="d-flex w-100 justify-content-between">
+      <% if(node.sysTags.length > 0) { %>
+        <h5 class="mb-1"><%= node.sysTags.find(getTitle).value %></h5>
+      <%} else {%>
+        <h5 class="mb-1">"No Title"</h5>
+      <%}%>
+
+      <!-- Date formatting, slice ensures only the last two digits are kept, ensuring dual digit dating -->
+      <small>Last Modified: <%= ('0' + revisionDate.getHours()).slice(-2) + ":"
+        + ('0' + revisionDate.getMinutes()).slice(-2) + " " + ('0' + revisionDate.getDate()).slice(-2) + "/"
+        + ('0' + (revisionDate.getMonth() + 1)).slice(-2) + "/" + ('0' + revisionDate.getFullYear()).slice(-2) %>
+      </small>
+    </div>
+    <p class="mb-1"><%= node.content %></p>
+    <small> <!--List tags-->
+      <%for (var userTag in node.userTags){%>
+        <%=node.userTags[userTag] + ", "%>
+      <%}%>
+    </small>
+  </a>
+  <% }) %> <!--foreach node-->
+<% } else {%> <!--Handle no node situation-->
+  <a class="list-group-item list-group-item-action  align-items-start">
+    <div class="d-flex w-100 justify-content-between">
+      <p>No Content found, please use the editor on the right to add some! </p>
+    </div>
+  </a>
+<% } %>
+</div> <!--End List-->

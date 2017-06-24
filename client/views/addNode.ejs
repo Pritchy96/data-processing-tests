@@ -15,7 +15,7 @@
         <!-- Left Bar/Content Window -->
         <div class="col-lg-3 full-height text-center scrollable" id="left-banner" >
             <div class="voffset4">
-              <% include listItem.ejs %>
+              <% include listNode.ejs %>
             </div>
         </div>
 
@@ -23,7 +23,7 @@
         <div class="col-lg-9 full-height" >
           <!-- Note top bar -->
           <div class="btn-group container-fluid voffset3" role="group" aria-label="Button group with nested dropdown">
-            <button type="button" class="btn btn-secondary" id="button-save-item">Save</button>
+            <button type="button" class="btn btn-secondary" id="button-save-node">Save</button>
             <button type="button" class="btn btn-secondary">Delete</button>
 
             <div class="btn-group" role="group">
@@ -37,26 +37,26 @@
 
           <!-- Main note UI -->
           <div class="container-fluid voffset3">
-            <!-- Item Title -->
+            <!-- Node Title -->
             <div class="input-group input-group-lg">
-              <span class="input-group-addon" id="sizing-addon1">Item Name</span>
-              <input type="text" class="form-control" placeholder="Item_Name" id="itemTitle" aria-describedby="sizing-addon1">
+              <span class="input-group-addon" id="sizing-addon1">Node Name</span>
+              <input type="text" class="form-control" placeholder="Node_Name" id="nodeTitle" aria-describedby="sizing-addon1">
             </div>
 
-            <!-- Item Tags -->
+            <!-- Node Tags -->
             <div class="input-group input-group-lg voffset3">
-              <span class="input-group-addon" id="sizing-addon1">Item Tag/s</span>
-              <input type="text" class="form-control" placeholder="Comma Separated List" id="itemTags" aria-describedby="sizing-addon1">
+              <span class="input-group-addon" id="sizing-addon1">Node Tag/s</span>
+              <input type="text" class="form-control" placeholder="Comma Separated List" id="nodeTags" aria-describedby="sizing-addon1">
             </div>
 
-            <!-- Items Data -->
-            <textarea class="form-control text-entry voffset4" rows="20" placeholder="Insert data here" id="itemContent"></textarea>
+            <!-- Nodes Data -->
+            <textarea class="form-control text-entry voffset4" rows="20" placeholder="Insert data here" id="nodeContent"></textarea>
           </div>
         </div>
       </div>
     </div>
 
-    <script src="/js/submitItem.js"></script>
-    <script src="/js/loadItem.js"></script>
+    <script src="/js/submitNode.js"></script>
+    <script src="/js/loadNode.js"></script>
   </body>
 </html>
