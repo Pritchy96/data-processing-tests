@@ -1,4 +1,5 @@
 function submitNode(nodeObj){
+  console.log("submitting node to server side of client:")
   console.log(nodeObj);
 
   $.post("http://localhost:8080/saveNode", {'node' : JSON.stringify(nodeObj)}, function(data){

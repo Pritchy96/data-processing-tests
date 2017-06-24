@@ -19,14 +19,15 @@ exports.request = function(path, method, callback, postData) {
     console.log("Setting up POST request");
     console.log(postData);
     options.headers = {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        "Content-Type": "application/json",
         'Content-Length': Buffer.byteLength(jsonNode)
     }
   } else {
     options.headers = {}
   }
 
-    console.log(options);
+  console.log("options: ")
+  console.log(options);
 
   var req = http.request(options, function(res) {
     console.log('callback for server interaction');
@@ -54,7 +55,7 @@ exports.request = function(path, method, callback, postData) {
   });
 
   if (options.method == 'POST') {
-    req.write(JSON.stringify({node: jsonNode}));
+    req.write(jsonNode);
   }
 
   req.end();
