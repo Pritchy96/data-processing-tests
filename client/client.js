@@ -115,7 +115,7 @@ router.post('/saveNode', function(request, response) {
   server.request(path, 'POST', function(serverReply) {
     serverQueryLatch.resolve();
     console.log(serverReply);
-  }, node);
+  }, JSON.parse(node));
 
   response.end();
 });

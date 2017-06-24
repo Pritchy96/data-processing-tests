@@ -54,7 +54,7 @@ exports.request = function(path, method, callback, postData) {
   });
 
   if (options.method == 'POST') {
-    req.write(jsonNode);
+    req.write(JSON.stringify({node: jsonNode}));
   }
 
   req.end();
