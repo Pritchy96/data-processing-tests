@@ -11,7 +11,7 @@ var router = express.Router();
 var bodyParser = require('body-parser')  ;
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // First you need to create a connection to the db
 var mysqlParams = {
