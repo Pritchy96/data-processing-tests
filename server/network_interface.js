@@ -200,11 +200,9 @@ router.post('/restoreNode', function(request, response) {
 router.post('/saveNode', function(request, response) {
   console.log("Reached MOIRA saveNode");
   console.log(request.body);
-  console.log(JSON.parse(request.body));
-
-  console.log(JSON.parse(request.body).node);
-
-  var node = JSON.parse(request.body.node);
+  console.log(request.body.node);
+  
+  var node = request.body;
 
   //Update version number.
   node.version = node.version + 1;
@@ -218,13 +216,16 @@ router.post('/saveNode', function(request, response) {
       saveFile(node);
     });
   } else {  //Update existing node.
+    console.log(node);
+    console.log(node.version);
+    console.log(node.nodeID);
     pool.query('UPDATE nodes SET version = ? WHERE node_ID = ?', [node.version, node.nodeID],
      function (error, result, fields) {
        if (error) return console.error(error);
        saveFile(node);
      });
   }
-  response.write("eyyy");
+  response.write(JSON.stringify("eyyy"));
   response.end();
 });
 
