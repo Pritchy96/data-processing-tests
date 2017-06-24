@@ -12,7 +12,7 @@ var path = __dirname + '/views/';
 var bodyParser = require('body-parser');
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // First you need to create a connection to the db
 var mysqlParams = {
@@ -106,14 +106,12 @@ router.get("*", function(request, response) {
 router.post('/saveNode', function(request, response) {
   console.log("Reached client program server side save method");
   var node = request.body.node;
-  console.log(node);
-
+  console.log(JSON.parse(node));
 
   //Now send this to the MOIRA server.
   var path = '/saveNode';
 
   server.request(path, 'POST', function(serverReply) {
-    serverQueryLatch.resolve();
     console.log(serverReply);
   }, JSON.parse(node));
 
