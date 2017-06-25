@@ -7,6 +7,7 @@ var when = require('when');
 
 var app = express();
 app.set('view engine', 'ejs');
+app.set('views', __dirname + '/views');
 var router = express.Router();
 var path = __dirname + '/views/';
 var bodyParser = require('body-parser');
@@ -86,8 +87,10 @@ function tagsNode(tag) {
 }
 
 router.get("*", function(request, response) {
-   //If the file path exists, serve the html file, otherwise serve 404.
+   //If the file path exists, serve the file, otherwise serve 404.
    var filePath = path + request.url;
+
+   console.log("Path is: " + path);
 
    if(filePath.indexOf('.') == -1)
    {
@@ -98,7 +101,7 @@ router.get("*", function(request, response) {
    if(fs.existsSync(filePath)) {
      response.sendFile(filePath);
    } else {
-     response.render("404");
+     response.render(path + "/404");
    }
 });
 
