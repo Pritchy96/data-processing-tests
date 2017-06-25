@@ -1,8 +1,8 @@
 var fs = require('fs');
+var root = __dirname + '/filestore';
 
 var filehandler = function (){
    this.saveFile = function (node, callback){
-     var root = 'filestore';
 
       if (!fs.existsSync(root)){
           fs.mkdirSync(root);
@@ -36,7 +36,7 @@ var filehandler = function (){
        return console.error("node does not have id or version, cannot load")
      }
 
-      var nodeLocation = "filestore/" + node.node_ID + "/" + node.version;
+      var nodeLocation = root + "/" + node.node_ID + "/" + node.version;
 
       //Specify an encoding to return a string, or not to return an ASCII buffer.
       fs.readFile( nodeLocation, { encoding: 'utf8' }, function (error, content) {
