@@ -113,9 +113,9 @@ router.post('/saveNode', function(request, response) {
 
   server.request(path, 'POST', function(serverReply) {
     console.log(serverReply);
+    response.redirect(request.originalUrl)
+    response.end();
   }, JSON.parse(node));
-
-  response.end();
 });
 
 function moveTagsToSingleArray(node, callback) {

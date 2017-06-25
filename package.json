@@ -2,14 +2,15 @@
   "name": "data-processing-tests",
   "version": "0.0.1",
   "scripts": {
-    "network-interface": "node network_interface.js",
-    "old-server": "node old_server.js",
+    "ni-server": "node network_interface/network_interface.js",
+    "client-server": "node client_app/client.js",
+    "old-server": "node old_server/old_server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "description": "",
   "main": "server.js",
   "dependencies": {
-    "body-parser": "^1.8.1",
+    "body-parser": "^1.17.2",
     "ejs": "^2.5.5",
     "express": "^4.14.1",
     "http": "^0.0.0",

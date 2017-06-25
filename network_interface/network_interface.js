@@ -3,13 +3,12 @@ var mysql = require('mysql');
 var express = require('express');
 var fs = require('fs');
 var fh = require("./filehandler.js");
-var filehandler = new fh();
 var when = require('when');
 
-var app = express();
+var filehandler = new fh();
 var router = express.Router();
-var bodyParser = require('body-parser')  ;
-
+var bodyParser = require('body-parser')
+var app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -199,10 +198,8 @@ router.post('/restoreNode', function(request, response) {
 
 router.post('/saveNode', function(request, response) {
   console.log("Reached MOIRA saveNode");
-  console.log(request.body);
   console.log(request.body.node);
-  
-  var node = request.body;
+  var node = request.body.node;
 
   //Update version number.
   node.version = node.version + 1;
@@ -216,16 +213,13 @@ router.post('/saveNode', function(request, response) {
       saveFile(node);
     });
   } else {  //Update existing node.
-    console.log(node);
-    console.log(node.version);
-    console.log(node.nodeID);
     pool.query('UPDATE nodes SET version = ? WHERE node_ID = ?', [node.version, node.nodeID],
      function (error, result, fields) {
        if (error) return console.error(error);
        saveFile(node);
      });
   }
-  response.write(JSON.stringify("eyyy"));
+  response.write("eyyy");
   response.end();
 });
 
