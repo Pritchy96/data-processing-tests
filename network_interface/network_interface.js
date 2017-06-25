@@ -217,10 +217,10 @@ router.post('/saveNode', function(request, response) {
      function (error, result, fields) {
        if (error) return console.error(error);
        saveFile(node);
+       response.write(JSON.stringify("Upload Complete")); //This should really go in saveFile callback.
+       response.end();
      });
   }
-  response.write("eyyy");
-  response.end();
 });
 
 //Saves file (and updates tags).
