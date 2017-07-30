@@ -2,8 +2,11 @@ var http = require('http');
 var mysql = require('mysql');
 var express = require('express');
 var fs = require('fs');
-var fh = require("./filehandler.js");
 var when = require('when');
+
+var config = require("./config.js");
+var fh = require("./filehandler.js");
+
 
 var filehandler = new fh();
 var router = express.Router();
@@ -15,10 +18,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // First you need to create a connection to the db
 var mysqlParams = {
   connectionLimit: 30,
-  host: "localhost",
-  user: "server",
-  password: "ayylmao",
-  database: "data"
+  host: config.moira.db.host,
+  user: config.moira.db.host,
+  password: config.moira.db.password,
+  database: config.moira.db.database
 };
 
 var pool = mysql.createPool(mysqlParams);
@@ -295,6 +298,6 @@ function updateTags (tags, nodeID) {
 
 app.use("/",router);
 
-app.listen(8080, function () {
-  console.log('Listening on port 8080')
+app.listen(config.moira.ni.port, function () {
+  console.log('Listening on port ' + config.moira.ni.port);
 });
