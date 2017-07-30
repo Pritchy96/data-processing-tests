@@ -19,7 +19,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 var mysqlParams = {
   connectionLimit: 30,
   host: config.moira.db.host,
-  user: config.moira.db.host,
+  user: config.moira.db.user,
   password: config.moira.db.password,
   database: config.moira.db.database
 };
