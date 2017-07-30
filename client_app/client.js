@@ -2,8 +2,10 @@ var http = require('http');
 var mysql = require('mysql');
 var express = require('express');
 var fs = require('fs');
-var server = require("./serverQueries.js");
 var when = require('when');
+
+var config = require("./config.js");
+var moira = require("./moiraInterface.js");
 
 var app = express();
 app.set('view engine', 'ejs');
@@ -14,17 +16,6 @@ var bodyParser = require('body-parser');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-// First you need to create a connection to the db
-var mysqlParams = {
-  connectionLimit: 30,
-  host: "localhost",
-  user: "server",
-  password: "ayylmao",
-  database: "data"
-};
-
-var pool = mysql.createPool(mysqlParams);
 
 router.use(function (request, response, next) {
   console.log("/" + request.method);  //Always print request to server console.
@@ -41,13 +32,13 @@ router.get('/viewNode/:nodeID', function(request, response) {
   var params;
 
   //Latches, which are 'resolved' when the async method they are assigned to finish.
-  var serverQueryLatch = when.defer();
+  var moiraQueryLatch = when.defer();
 
   var path = '/getNodeById?node_id=' + request.params.nodeID;
 
-  server.request(path, 'GET', function(serverReply) {
-    serverQueryLatch.resolve();
-    params = { node : serverReply };
+  moira.request(path, 'GET', function(moiraReply) {
+    moiraQueryLatch.resolve();
+    params = { node : moiraReply };
   });
 
   when.all(promises).then(function() {
@@ -61,14 +52,14 @@ router.get('/addNode', function(request, response) {
   var nodes;
 
   //Latches, which are 'resolved' when the async method they are assigned to finish.
-  var serverQueryLatch = when.defer();
-  promises.push(serverQueryLatch.promise);
+  var moiraQueryLatch = when.defer();
+  promises.push(moiraQueryLatch.promise);
 
   var path = '/getAllNodes';
 
-  server.request(path, 'GET', function(serverReply) {
-    serverQueryLatch.resolve();
-    nodes = serverReply;
+  moira.request(path, 'GET', function(moiraReply) {
+    moiraQueryLatch.resolve();
+    nodes = moiraReply;
   });
 
   //When this triggers, all promises from all nodes have been resolved.
@@ -114,10 +105,10 @@ router.post('/saveNode', function(request, response) {
   //Now send this to the MOIRA server.
   var path = '/saveNode';
 
-  server.request(path, 'POST', function(serverReply) {
-    console.log(serverReply);
-    response.redirect(request.originalUrl)
-    response.end();
+  moira.request(path, 'POST', function(moiraReply) {
+    console.log(moiraReply);
+    console.log("redirecting");
+    response.redirect("addNode");
   }, {node: JSON.parse(node)});
 });
 
@@ -140,6 +131,6 @@ function moveTagsToSingleArray(node, callback) {
 
 app.use("/",router);
 
-app.listen(8080, function () {
-  console.log('Listening on port 8080')
+app.listen(config.client.port, function () {
+  console.log('Listening on port ' + config.client.port)
 });
