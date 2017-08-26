@@ -70,12 +70,7 @@ router.get('/addNode', function(request, response) {
   });
 });
 
-//Runs through an array of tags, and checks if node.node_ID == tag.nodeID.
-function tagsNode(tag) {
-  //This is set by the second parameter that calls this function.
-  //God knows why. In this case it will be an node that we're creating.
-  return this.node_ID == tag.node_ID;
-}
+
 
 router.get("*", function(request, response) {
    //If the file path exists, serve the file, otherwise serve 404.
@@ -102,6 +97,8 @@ router.post('/saveNode', function(request, response) {
   var node = request.body.node;
   console.log(JSON.parse(node));
 
+  node
+
   //Now send this to the MOIRA server.
   var path = '/saveNode';
 
@@ -111,23 +108,6 @@ router.post('/saveNode', function(request, response) {
     response.redirect("addNode");
   }, {node: JSON.parse(node)});
 });
-
-function moveTagsToSingleArray(node, callback) {
-  var tags = [];
-
-  //Add tags to single formatted array for pushing to database.
-  for (var i in node.userTags) {
-    tags.push([node.nodeID, "userDef", node.userTags[i].trim()]);
-  }
-
-  for (var i in node.sysTags) {
-    tags.push([node.nodeID, node.sysTags[i].key, node.sysTags[i].value.trim()]);
-  }
-
-  console.log(tags);
-
-  callback(null, tags);
-}
 
 app.use("/",router);
 

@@ -64,17 +64,13 @@ router.get('/getNodeById', function(request, response) {
 
           promises.push(fileloadLatch.promise);
 
-          var userTags = [], sysTags = [];
+          var tags = [];
 
           if (tagRes[0]) {
             var nodeTags = tagRes.filter(isTagOfNode, node); //Run the isTagOfNode method on tagRes, setting 'this' within the method to
             //Split Node tags into User and System Tags
             for (var i in nodeTags) {
-              if (nodeTags[i].key == "userDef") {
-                userTags.push(nodeTags[i].value);
-              } else {
-                sysTags.push({key: nodeTags[i].key, value: nodeTags[i].value});
-              }
+                tags.push({key: nodeTags[i].key, value: nodeTags[i].value});
             }
           }
 
@@ -85,8 +81,7 @@ router.get('/getNodeById', function(request, response) {
               revisionDate: node.revision_date.toISOString(),
               content: node.content,
               version: node.version,
-              userTags: userTags,
-              sysTags: sysTags
+              tags: tags
             });
           });
         });
@@ -128,17 +123,13 @@ router.get('/getAllNodes', function(request, response) {
 
           promises.push(fileloadLatch.promise);
 
-          var userTags = [], sysTags = [];
+          var tags = [];
 
           if (tagRes[0]) {
             var nodeTags = tagRes.filter(isTagOfNode, node); //Run the isTagOfNode method on tagRes, setting 'this' within the method to
             //Split Node tags into User and System Tags
             for (var i in nodeTags) {
-              if (nodeTags[i].key == "userDef") {
-                userTags.push(nodeTags[i].value);
-              } else {
-                sysTags.push({key: nodeTags[i].key, value: nodeTags[i].value});
-              }
+                tags.push({key: nodeTags[i].key, value: nodeTags[i].value});
             }
           }
 
@@ -149,8 +140,7 @@ router.get('/getAllNodes', function(request, response) {
               revisionDate: node.revision_date.toISOString(),
               content: node.content,
               version: node.version,
-              userTags: userTags,
-              sysTags: sysTags
+              tags: tags
             });
           });
         });
@@ -233,7 +223,6 @@ function saveFile(node) {
   //Latches, which are 'resolved' when the async method they are assigned to finish.
   //So we only save the node when the async stuff is finished.
   var filesaveLatch = when.defer();
-  var tagLatch = when.defer();  //Moves the sysTags and userTags to a single array for saving to db.
 
   //Save the file with the nodeID.
   filehandler.saveFile(node, function(error, node) {
@@ -243,38 +232,9 @@ function saveFile(node) {
   });
   promises.push(filesaveLatch.promise);
 
-  tags = [];
-
-  moveTagsToSingleArray(node, function(error, tagArray) {
-    if (error) return console.error(error);
-    tags = tagArray;
-    console.log("resolving Tag latch");
-    tagLatch.resolve();
-  });
-  promises.push(tagLatch.promise);
-
   //When this triggers, all promises have been resolved.
   //Update tags last, so that if the node updating fails we don't update these.
-  when.all(promises).then(updateTags(tags, node.nodeID));
-}
-
- //Moves the sysTags and userTags to a single array for saving to db.
-
-function moveTagsToSingleArray(node, callback) {
-  var tags = [];
-
-  //Add tags to single formatted array for pushing to database.
-  for (var i in node.userTags) {
-    tags.push([node.nodeID, "userDef", node.userTags[i].trim()]);
-  }
-
-  for (var i in node.sysTags) {
-    tags.push([node.nodeID, node.sysTags[i].key, node.sysTags[i].value.trim()]);
-  }
-
-  console.log(tags);
-
-  callback(null, tags);
+  when.all(promises).then(updateTags(node.tags, node.nodeID));
 }
 
 //Adds any new tags in the list, and removes any tags that are not.
