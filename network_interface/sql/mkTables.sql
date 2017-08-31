@@ -2,20 +2,52 @@ use data;
 
 CREATE TABLE nodes (
   node_ID INT(11) NOT NULL AUTO_INCREMENT,
-  version INT(11),
-  #file_pointer CHAR(255) NOT NULL,
   creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  revision_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  delete_date   TIMESTAMP NULL,
+  deletion_date TIMESTAMP NULL,
   PRIMARY KEY (node_ID)
 );
 
-CREATE TABLE tags (
-  tag_ID INT(11) NOT NULL AUTO_INCREMENT,
-  node_ID INT(11) NOT NULL,
-  `key` CHAR(100) NOT NULL,
-  `value` CHAR(100) NOT NULL,
-  UNIQUE KEY unique_tags (node_ID, `key`, `value`), #Ensures any given node doesn't have duplicate tags.
-  PRIMARY KEY (tag_ID),
-  FOREIGN KEY (node_ID) REFERENCES nodes(node_ID)
+CREATE TABLE tag_types (
+  tag_type_ID int(11)   NOT NULL AUTO_INCREMENT,
+  name        CHAR(100) NOT NULL,
+  tag_table_type   CHAR(100) NOT NULL,
+  creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (tag_type_ID)
 );
+
+CREATE TABLE tag_table_types (
+  name        CHAR(100) NOT NULL,
+  PRIMARY KEY (name)
+);
+
+CREATE TABLE tags (
+  tag_ID INT(11)    NOT NULL AUTO_INCREMENT,
+  tag_type_ID INT(11) NOT NULL,
+  node_ID INT(11)   NOT NULL,
+  `key` CHAR(100)   NOT NULL,
+  creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deletion_date TIMESTAMP NULL,
+  PRIMARY KEY (tag_ID, tag_type_ID),
+  FOREIGN KEY (node_ID) REFERENCES nodes(node_ID),
+  FOREIGN KEY (tag_type_ID) REFERENCES tag_types(tag_type_ID)
+);
+
+CREATE TABLE tags_float (
+  tag_ID INT(11),
+  `value` FLOAT NOT NULL,
+  FOREIGN KEY(tag_ID) REFERENCES tags(tag_ID)
+);
+
+CREATE TABLE tags_timestamp (
+  tag_ID INT(11),
+  `value`TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  FOREIGN KEY (tag_ID) REFERENCES tags(tag_ID)
+);
+
+CREATE TABLE apps (
+  app_ID INT(11)  NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (app_ID)
+);
+
+
+#UNIQUE KEY unique_tags (node_ID, `key`, `value`), #Ensures any given node doesnt have duplicate tags.
