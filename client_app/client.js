@@ -4,8 +4,6 @@ var express = require('express');
 var fs = require('fs');
 var when = require('when');
 var moira = require("moira-network-interface");
-
-
 var config = require("./config");
 
 var app = express();
@@ -76,14 +74,8 @@ router.get('/checkMasterList', function(request, response) {
 });
 
 router.get('/testAddTag', function(request, response) {
-  moira.interface.request(`/testAddTag`, 'POST', function() {},
-                   { tag_type: moira.tag_types.temperature,
-                     tag_name: "temp_test",
-                     tag_data: 23.4 ,
-                     node_ID: 1});
+  moira.tags.addTag({tag_type: moira.tags.tag_types.temperature, tag_name: "temp_test_3", tag_data: 49, node_ID: 1});
 });
-
-
 
 router.get("*", function(request, response) {
    //If the file path exists, serve the file, otherwise serve 404.

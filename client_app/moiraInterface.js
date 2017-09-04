@@ -40,7 +40,6 @@ exports.request = function(path, method, callback, postData) {
     // Buffer the body entirely for processing as a whole.
     var bodyChunks = [];
     res.on('data', function(chunk) {
-      // You can process streamed parts here...
       bodyChunks.push(chunk);
     }).on('end', function() {
       var body = Buffer.concat(bodyChunks);

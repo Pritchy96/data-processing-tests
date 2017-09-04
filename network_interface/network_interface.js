@@ -171,7 +171,7 @@ function isTagOfNode(tag) {
 
 //Router.get("*", function(request, response) {});
 
-router.post('/testAddTag', function(request, response) {
+router.post('/addTag', function(request, response) {
   var promises = [];
   var addToTagTable = when.defer();
   promises.push(addToTagTable.promise);
