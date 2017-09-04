@@ -11,10 +11,11 @@
   "main": "server.js",
   "dependencies": {
     "body-parser": "^1.17.2",
-    "ejs": "^2.5.5",
-    "express": "^4.14.1",
+    "ejs": "^2.5.7",
+    "express": "^4.15.4",
     "http": "^0.0.0",
-    "mysql": "^2.13.0",
+    "moira-network-interface": "git+ssh://git@github.com/Pritchy96/moira-network-interface-node.git",
+    "mysql": "^2.14.1",
     "when": "^3.7.8"
   },
   "devDependencies": {},

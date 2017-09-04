@@ -40,3 +40,4 @@ jspm_packages
 #database filestorage
 filestore
 network_interface/config.js
+moira.conf.js

@@ -49,5 +49,7 @@ CREATE TABLE apps (
   PRIMARY KEY (app_ID)
 );
 
+INSERT INTO tag_table_types VALUES (`tags_float`), (`tags_timestamp`);
+INSERT INTO tag_types (name, tag_table_type) VALUES ("temperature", "tags_float");
 
 #UNIQUE KEY unique_tags (node_ID, `key`, `value`), #Ensures any given node doesnt have duplicate tags.

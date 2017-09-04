@@ -7,7 +7,6 @@ var when = require('when');
 var config = require("./config.js");
 var fh = require("./filehandler.js");
 
-
 var filehandler = new fh();
 var router = express.Router();
 var bodyParser = require('body-parser')
@@ -99,7 +98,7 @@ router.get('/getNodeById', function(request, response) {
 
 //This should be a temporary method, to be replaced with tag based searching, etc.
 router.get('/getAllNodes', function(request, response) {
-  pool.query('select * from nodes', function(err, nodeRes) {
+  pool.query('SELECT * FROM nodes', function(err, nodeRes) {
     pool.query('select * from tags', function(err, tagRes) {
 
       var promises = [], nodes = [];
@@ -156,6 +155,13 @@ router.get('/getAllNodes', function(request, response) {
   });
 });
 
+router.get('/getMasterList', function(request, response) {
+    pool.query('SELECT * FROM tag_types', function (err, tag_types) {
+      console.log(tag_types);
+      response.send(tag_types);
+    });
+});
+
 //Checks if node(this).node_ID == tag.nodeID. Used in getNodeById, returns a bool
 function isTagOfNode(tag) {
   //'this' is set by the second parameter that calls this function.
@@ -164,6 +170,23 @@ function isTagOfNode(tag) {
 }
 
 //Router.get("*", function(request, response) {});
+
+router.post('/testAddTag', function(request, response) {
+  var promises = [];
+  var addToTagTable = when.defer();
+  promises.push(addToTagTable.promise);
+
+
+  pool.query('INSERT INTO `tags` SET ?',
+    { tag_type_ID: request.body.tag_type.tag_type_ID,
+      node_id: request.body.node_ID,
+      key: request.body.tag_name,
+    },
+   function (error, result, fields) {
+    if (error) return console.error(error);
+    addToTagTypeTable(request.body.tag_type.tag_table_type, request.body.tag_data, result.insertId);
+  });
+});
 
 //Set the delete date on the node, starting its purge timer.
 router.post('/deleteNode', function(request, response) {
@@ -255,6 +278,19 @@ function updateTags (tags, nodeID) {
     if (error) console.error(error);
   });
 }
+
+function addToTagTypeTable(tag_table_type, tag_data, tagID) {
+  console.log("adding tag to type table..");
+
+  pool.query('INSERT INTO ?? SET ?', [tag_table_type,
+    { value: tag_data,
+      tag_ID: tagID
+    }],
+   function (error, result, fields) {
+    //TODO: Drop tag entry here.
+    if (error) return console.error(error);
+  });
+};
 
 app.use("/",router);
 

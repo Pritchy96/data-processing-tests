@@ -3,9 +3,10 @@ var mysql = require('mysql');
 var express = require('express');
 var fs = require('fs');
 var when = require('when');
+var moira = require("moira-network-interface");
 
-var config = require("./config.js");
-var moira = require("./moiraInterface.js");
+
+var config = require("./config");
 
 var app = express();
 app.set('view engine', 'ejs');
@@ -36,7 +37,7 @@ router.get('/viewNode/:nodeID', function(request, response) {
 
   var path = '/getNodeById?node_id=' + request.params.nodeID;
 
-  moira.request(path, 'GET', function(moiraReply) {
+  moira.interface.request(path, 'GET', function(moiraReply) {
     moiraQueryLatch.resolve();
     params = { node : moiraReply };
   });
@@ -57,7 +58,7 @@ router.get('/addNode', function(request, response) {
 
   var path = '/getAllNodes';
 
-  moira.request(path, 'GET', function(moiraReply) {
+  moira.interface.request(path, 'GET', function(moiraReply) {
     moiraQueryLatch.resolve();
     nodes = moiraReply;
   });
@@ -70,6 +71,18 @@ router.get('/addNode', function(request, response) {
   });
 });
 
+router.get('/checkMasterList', function(request, response) {
+  console.log(moira.tag_types);
+});
+
+router.get('/testAddTag', function(request, response) {
+  moira.interface.request(`/testAddTag`, 'POST', function() {},
+                   { tag_type: moira.tag_types.temperature,
+                     tag_name: "temp_test",
+                     tag_data: 23.4 ,
+                     node_ID: 1});
+});
+
 
 
 router.get("*", function(request, response) {
@@ -78,8 +91,7 @@ router.get("*", function(request, response) {
 
    console.log("Path is: " + path);
 
-   if(filePath.indexOf('.') == -1)
-   {
+   if(filePath.indexOf('.') == -1)  {
     //Period found.
     filePath += ".html"
    }
@@ -97,12 +109,10 @@ router.post('/saveNode', function(request, response) {
   var node = request.body.node;
   console.log(JSON.parse(node));
 
-  node
-
   //Now send this to the MOIRA server.
   var path = '/saveNode';
 
-  moira.request(path, 'POST', function(moiraReply) {
+  moira.interface.request(path, 'POST', function(moiraReply) {
     console.log(moiraReply);
     console.log("redirecting");
     response.redirect("addNode");

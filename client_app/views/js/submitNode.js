@@ -1,4 +1,4 @@
-var moira = require("./moiraInterface.js");
+var moira = require("./moiraInterface");
 
 function submitNode(nodeObj){
   console.log("submitting node to server side of client:")
