@@ -1,4 +1,4 @@
-use data;
+use new_data;
 
 CREATE TABLE nodes (
   node_ID INT(11) NOT NULL AUTO_INCREMENT,
@@ -32,6 +32,18 @@ CREATE TABLE tags (
   FOREIGN KEY (tag_type_ID) REFERENCES tag_types(tag_type_ID)
 );
 
+CREATE TABLE tags_string (
+  tag_ID INT(11),
+  `value` CHAR(100) NOT NULL,
+  FOREIGN KEY(tag_ID) REFERENCES tags(tag_ID)
+);
+
+CREATE TABLE tags_integer (
+  tag_ID INT(11),
+  `value` INT(11) NOT NULL,
+  FOREIGN KEY(tag_ID) REFERENCES tags(tag_ID)
+);
+
 CREATE TABLE tags_float (
   tag_ID INT(11),
   `value` FLOAT NOT NULL,
@@ -44,12 +56,18 @@ CREATE TABLE tags_timestamp (
   FOREIGN KEY (tag_ID) REFERENCES tags(tag_ID)
 );
 
+CREATE TABLE tags_filepointer (
+  tag_ID INT(11),
+  `value` CHAR(100) NOT NULL,
+  FOREIGN KEY(tag_ID) REFERENCES tags(tag_ID)
+);
+
+INSERT INTO tag_table_types VALUES ("tags_string"), ("tags_integer"), ("tags_float"), ("tags_timestamp"), ("tags_filepointer");
+
+INSERT INTO tag_types (name, tag_table_type) VALUES ("temperature", "tags_float"); #Example data
+
 CREATE TABLE apps (
   app_ID INT(11)  NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (app_ID)
 );
-
-INSERT INTO tag_table_types VALUES (`tags_float`), (`tags_timestamp`);
-INSERT INTO tag_types (name, tag_table_type) VALUES ("temperature", "tags_float");
-
 #UNIQUE KEY unique_tags (node_ID, `key`, `value`), #Ensures any given node doesnt have duplicate tags.
