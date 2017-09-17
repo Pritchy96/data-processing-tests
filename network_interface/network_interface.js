@@ -7,6 +7,8 @@ var when = require('when');
 var config = require("./config.js");
 var fh = require("./filehandler.js");
 
+var dbHandler = require(`./db_handler`);
+
 var filehandler = new fh();
 var router = express.Router();
 var bodyParser = require('body-parser')
@@ -28,13 +30,14 @@ var pool = mysql.createPool(mysqlParams);
 router.use(function (request, response, next) {
   console.log("/" + request.method);  //Always print request to server console.
   console.log("requesting " + request.url);  //Always print request to server console.
-  next(); //Allow the router to be executed.
+  next(); //Allow the router addto be executed.
 });
 
 router.get('/', function(request, response) {
   response.send('Welcome to MOIRA.')
 });
 
+//Deprecated?
 router.get('/getNodeById', function(request, response) {
   //pool.query('select * from nodes', function(err, nodeRes) {
   //  pool.query('select * from tags', function(err, tagRes) {
@@ -96,6 +99,7 @@ router.get('/getNodeById', function(request, response) {
   });
 });
 
+//Deprecated?
 //This should be a temporary method, to be replaced with tag based searching, etc.
 router.get('/getAllNodes', function(request, response) {
   pool.query('SELECT * FROM nodes', function(err, nodeRes) {
@@ -162,6 +166,7 @@ router.get('/getMasterList', function(request, response) {
     });
 });
 
+//Deprecated?
 //Checks if node(this).node_ID == tag.nodeID. Used in getNodeById, returns a bool
 function isTagOfNode(tag) {
   //'this' is set by the second parameter that calls this function.
@@ -169,25 +174,11 @@ function isTagOfNode(tag) {
   return this.node_ID == tag.node_ID;
 }
 
-//Router.get("*", function(request, response) {});
-
 router.post('/addTag', function(request, response) {
-  var promises = [];
-  var addToTagTable = when.defer();
-  promises.push(addToTagTable.promise);
-
-
-  pool.query('INSERT INTO `tags` SET ?',
-    { tag_type_ID: request.body.tag_type.tag_type_ID,
-      node_id: request.body.node_ID,
-      key: request.body.tag_name,
-    },
-   function (error, result, fields) {
-    if (error) return console.error(error);
-    addToTagTypeTable(request.body.tag_type.tag_table_type, request.body.tag_data, result.insertId);
-  });
+  dbHandler.addTag( request.body.node_ID, request.body.tag_name, request.body.tag_data, request.body.tag_type)
 });
 
+//Deprecated?
 //Set the delete date on the node, starting its purge timer.
 router.post('/deleteNode', function(request, response) {
   console.log(request.query.node_id);
@@ -200,6 +191,7 @@ router.post('/deleteNode', function(request, response) {
   response.end();
 });
 
+//Deprecated?
 //Remove the delete date from a node, restoring it.
 router.post('/restoreNode', function(request, response) {
   console.log(request.query.node_id);
@@ -212,6 +204,7 @@ router.post('/restoreNode', function(request, response) {
   response.end();
 });
 
+//Deprecated
 router.post('/saveNode', function(request, response) {
   console.log("Reached MOIRA saveNode");
   console.log(request.body.node);
@@ -239,6 +232,19 @@ router.post('/saveNode', function(request, response) {
   }
 });
 
+router.post('/addNode', function(request, response) {
+  console.log("Reached MOIRA addNode");
+  var tag = request.body.tag;
+
+  dbHandler.addNode((node_ID) => {
+    if (tag) {
+      console.log(`tag_type: ${tag.tag_type}`);
+      dbHandler.addTag(node_ID, tag.tag_name, tag.tag_data, tag.tag_type, undefined);
+    }
+  });
+});
+
+//Deprecated
 //Saves file (and updates tags).
 function saveFile(node) {
   var promises = [];
@@ -260,6 +266,7 @@ function saveFile(node) {
   when.all(promises).then(updateTags(node.tags, node.nodeID));
 }
 
+//Deprecated
 //Adds any new tags in the list, and removes any tags that are not.
 function updateTags (tags, nodeID) {
   console.log('Finished Promises, uploading node');
@@ -278,19 +285,6 @@ function updateTags (tags, nodeID) {
     if (error) console.error(error);
   });
 }
-
-function addToTagTypeTable(tag_table_type, tag_data, tagID) {
-  console.log("adding tag to type table..");
-
-  pool.query('INSERT INTO ?? SET ?', [tag_table_type,
-    { value: tag_data,
-      tag_ID: tagID
-    }],
-   function (error, result, fields) {
-    //TODO: Drop tag entry here.
-    if (error) return console.error(error);
-  });
-};
 
 app.use("/",router);
 

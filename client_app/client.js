@@ -74,7 +74,7 @@ router.get('/checkMasterList', function(request, response) {
 });
 
 router.get('/testAddTag', function(request, response) {
-  moira.tags.addTag({tag_type: moira.tags.tag_types.temperature, tag_name: "temp_test_3", tag_data: 49, node_ID: 1});
+  moira.nodes.addNode({tag: {tag_type: moira.tags.tag_types.temperature, tag_name: "temp_test_4", tag_data: 50}});
 });
 
 router.get("*", function(request, response) {

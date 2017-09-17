@@ -72,5 +72,6 @@ CREATE TABLE apps (
  #Example data
 INSERT INTO nodes VALUES(),(),(),(),(); #Add five nodes.
 INSERT INTO tag_types (name, tag_table_type) VALUES ("temperature", "tags_float");
+INSERT INTO tag_types (name, tag_table_type) VALUES ("name", "tags_string");
 
 #UNIQUE KEY unique_tags (node_ID, `key`, `value`), #Ensures any given node doesnt have duplicate tags.
