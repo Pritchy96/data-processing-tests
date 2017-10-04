@@ -35,14 +35,28 @@ module.exports = {
       addToTagTypeTable(tag_type.tag_table_type, tag_data, result.insertId, callback);
     });
   },
+
+  deleteNode: (node_id, resetDeleteDate = false, callback) => {
+
+    if (!resetDeleteDate) {
+      pool.query('SELECT deletion_date FROM nodes WHERE node_ID = ?'), [node_id], function(error, result) {
+        if (result != NULL) return callback(); 
+      }
+    }
+
+    pool.query('UPDATE nodes SET deletion_date = CURRENT_TIMESTAMP WHERE node_ID = ?', [node_id],
+    function (error, result, fields) {
+      if (error) return console.error(error);
+    });
+  }
 }
 
-function addToTagTypeTable(tag_table_type, tag_data, tagID, callback) {
+function addToTagTypeTable(tag_table_type, tag_data, tag_id, callback) {
   console.log("adding tag to type table..");
 
   pool.query('INSERT INTO ?? SET ?', [tag_table_type,
     { value: tag_data,
-      tag_ID: tagID
+      tag_ID: tag_id
     }],
    function (error, result, fields) {
     //TODO: Drop tag entry here.

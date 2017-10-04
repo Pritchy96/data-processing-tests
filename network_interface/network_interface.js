@@ -16,7 +16,6 @@ var app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// First you need to create a connection to the db
 var mysqlParams = {
   connectionLimit: 30,
   host: config.moira.db.host,
@@ -37,10 +36,8 @@ router.get('/', function(request, response) {
   response.send('Welcome to MOIRA.')
 });
 
-//Deprecated?
+//Deprecated: Rewrite
 router.get('/getNodeById', function(request, response) {
-  //pool.query('select * from nodes', function(err, nodeRes) {
-  //  pool.query('select * from tags', function(err, tagRes) {
 
   console.log(request.query.node_id);
   pool.query('SELECT * FROM nodes WHERE node_ID = ?', [request.query.node_id], function(err, nodeRes) {
@@ -49,22 +46,6 @@ router.get('/getNodeById', function(request, response) {
 
       if (nodeRes[0]) { //Only bother if there are some nodes returned
         nodeRes.forEach(function(node) {
-
-          //Latches, which are 'resolved' when the async method they are assigned to finish.
-          //So we only save the node when the async stuff is finished.
-          var fileloadLatch = when.defer();
-
-          filehandler.loadFile(node, function(error, content) {
-            if (error) console.error(error);
-
-            node.content = content;
-            console.log("node content (in callback): ");
-            console.log(content);
-
-            fileloadLatch.resolve();
-          });
-
-          promises.push(fileloadLatch.promise);
 
           var tags = [];
 
@@ -80,9 +61,8 @@ router.get('/getNodeById', function(request, response) {
           when.all(promises).then(function () {
             nodes.push({  //Push the current nodes content to the list of nodes
               nodeID: node.node_ID,
-              revisionDate: node.revision_date.toISOString(),
-              content: node.content,
-              version: node.version,
+              addDate: node.content,
+              deleteDate: node.version,
               tags: tags
             });
           });
@@ -99,7 +79,7 @@ router.get('/getNodeById', function(request, response) {
   });
 });
 
-//Deprecated?
+//Deprecated: Rewrite
 //This should be a temporary method, to be replaced with tag based searching, etc.
 router.get('/getAllNodes', function(request, response) {
   pool.query('SELECT * FROM nodes', function(err, nodeRes) {
@@ -166,7 +146,6 @@ router.get('/getMasterList', function(request, response) {
     });
 });
 
-//Deprecated?
 //Checks if node(this).node_ID == tag.nodeID. Used in getNodeById, returns a bool
 function isTagOfNode(tag) {
   //'this' is set by the second parameter that calls this function.
@@ -178,25 +157,20 @@ router.post('/addTag', function(request, response) {
   dbHandler.addTag( request.body.node_ID, request.body.tag_name, request.body.tag_data, request.body.tag_type)
 });
 
-//Deprecated?
+  
 //Set the delete date on the node, starting its purge timer.
 router.post('/deleteNode', function(request, response) {
   console.log(request.query.node_id);
-
-    pool.query('UPDATE nodes SET delete_date = CURRENT_TIMESTAMP WHERE node_ID = ?', [node.nodeID],
-     function (error, result, fields) {
-       if (error) return console.error(error);
-     });
-
-  response.end();
+  dbHandler.deleteNode(request.resetDeleteDate == true ? true : false, function(request, response) {
+    response.end();  
+  });
 });
 
-//Deprecated?
 //Remove the delete date from a node, restoring it.
 router.post('/restoreNode', function(request, response) {
   console.log(request.query.node_id);
 
-    pool.query('UPDATE nodes SET delete_date = NULL WHERE node_ID = ?', [node.nodeID],
+    pool.query('UPDATE nodes SET deletion_date = NULL WHERE node_ID = ?', [node.nodeID],
      function (error, result, fields) {
        if (error) return console.error(error);
      });
