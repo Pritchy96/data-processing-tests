@@ -39,9 +39,9 @@ router.get('/', function(request, response) {
 //Deprecated: Rewrite
 router.get('/getNodeById', function(request, response) {
 
-  console.log(request.query.node_id);
-  pool.query('SELECT * FROM nodes WHERE node_ID = ?', [request.query.node_id], function(err, nodeRes) {
-    pool.query('SELECT * FROM tags WHERE node_ID = ?', [request.query.node_id], function(err, tagRes) {
+  console.log(request.query.nodeId);
+  pool.query('SELECT * FROM nodes WHERE node_ID = ?', [request.query.nodeId], function(err, nodeRes) {
+    pool.query('SELECT * FROM tags WHERE node_ID = ?', [request.query.nodeId], function(err, tagRes) {
       var promises = [], nodes = [];
 
       if (nodeRes[0]) { //Only bother if there are some nodes returned
@@ -60,7 +60,7 @@ router.get('/getNodeById', function(request, response) {
           //When this triggers, all promises for the current node have been resolved.
           when.all(promises).then(function () {
             nodes.push({  //Push the current nodes content to the list of nodes
-              nodeID: node.node_ID,
+              nodeID: node.nodeId,
               addDate: node.content,
               deleteDate: node.version,
               tags: tags
@@ -119,8 +119,8 @@ router.get('/getAllNodes', function(request, response) {
           //When this triggers, all promises for the current node have been resolved.
           when.all(promises).then(function () {
             nodes.push({  //Push the current nodes content to the list of nodes
-              nodeID: node.node_ID,
-              revisionDate: node.revision_date.toISOString(),
+              nodeId: node.nodeId,
+              revisionDate: node.revisionDate.toISOString(),
               content: node.content,
               version: node.version,
               tags: tags
@@ -140,35 +140,35 @@ router.get('/getAllNodes', function(request, response) {
 });
 
 router.get('/getMasterList', function(request, response) {
-    pool.query('SELECT * FROM tag_types', function (err, tag_types) {
-      console.log(tag_types);
-      response.send(tag_types);
+    pool.query('SELECT * FROM tag_types', function (err, tagTypes) {
+      console.log(tagTypes);
+      response.send(tagTypes);
     });
 });
 
-//Checks if node(this).node_ID == tag.nodeID. Used in getNodeById, returns a bool
+//Checks if node(this).nodeId == tag.nodeId. Used in getNodeById, returns a bool
 function isTagOfNode(tag) {
   //'this' is set by the second parameter that calls this function.
   //God knows why. In this case it will be an node that we're creating.
-  return this.node_ID == tag.node_ID;
+  return this.nodeId == tag.nodeId;
 }
 
 router.post('/addTag', function(request, response) {
-  dbHandler.addTag( request.body.node_ID, request.body.tag_name, request.body.tag_data, request.body.tag_type)
+  dbHandler.addTag( request.body.nodeId, request.body.tagName, request.body.tagData, request.body.tagType)
 });
 
-  
+
 //Set the delete date on the node, starting its purge timer.
 router.post('/deleteNode', function(request, response) {
-  console.log(request.query.node_id);
+  console.log(request.query.nodeId);
   dbHandler.deleteNode(request.resetDeleteDate == true ? true : false, function(request, response) {
-    response.end();  
+    response.end();
   });
 });
 
 //Remove the delete date from a node, restoring it.
 router.post('/restoreNode', function(request, response) {
-  console.log(request.query.node_id);
+  console.log(request.query.nodeId);
 
     pool.query('UPDATE nodes SET deletion_date = NULL WHERE node_ID = ?', [node.nodeID],
      function (error, result, fields) {
@@ -210,10 +210,10 @@ router.post('/addNode', function(request, response) {
   console.log("Reached MOIRA addNode");
   var tag = request.body.tag;
 
-  dbHandler.addNode((node_ID) => {
+  dbHandler.addNode((nodeId) => {
     if (tag) {
-      console.log(`tag_type: ${tag.tag_type}`);
-      dbHandler.addTag(node_ID, tag.tag_name, tag.tag_data, tag.tag_type, undefined);
+      console.log(`tagType: ${tag.tagType}`);
+      dbHandler.addTag(nodeId, tag.tagName, tag.tagData, tag.tagType, undefined);
     }
   });
 });

@@ -10,16 +10,13 @@
   "description": "",
   "main": "server.js",
   "dependencies": {
-    "body-parser": "^1.18.1",
+    "body-parser": "^1.18.2",
     "ejs": "^2.5.7",
-    "express": "^4.15.4",
+    "express": "^4.16.1",
     "http": "^0.0.0",
     "moira-network-interface": "git+ssh://git@github.com/Pritchy96/moira-network-interface-node.git",
     "mysql": "^2.14.1",
     "when": "^3.7.8"
-  },
-  "devDependencies": {
-    "jslint": "^0.11.0",    
   },
   "repository": {
     "type": "git",

@@ -9,8 +9,8 @@ var filehandler = function (){
       }
 
       //Path is the unique ID of the node in the databse.
-      var nodeFolder = root + "/" + node.nodeID;
 
+      var nodeFolder = root + "/" + node.nodeId;
       if (!fs.existsSync(nodeFolder)){
           fs.mkdirSync(nodeFolder);
       }
@@ -32,11 +32,11 @@ var filehandler = function (){
    //Loads the content of an node from the filestore, given the nodes database entry.
    this.loadFile = function (node, callback) {
 
-     if (node.node_ID == null || node.version == null) {
+     if (node.nodeId == null || node.version == null) {
        return console.error("node does not have id or version, cannot load")
      }
 
-      var nodeLocation = root + "/" + node.node_ID + "/" + node.version;
+      var nodeLocation = root + "/" + node.nodeId + "/" + node.version;
 
       //Specify an encoding to return a string, or not to return an ASCII buffer.
       fs.readFile( nodeLocation, { encoding: 'utf8' }, function (error, content) {

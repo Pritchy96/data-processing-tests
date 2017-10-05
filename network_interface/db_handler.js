@@ -24,39 +24,38 @@ module.exports = {
   },
 
   //TODO: Promisify?
-  addTag: (node_id, tag_name, tag_data, tag_type, callback) => {
+  addTag: (nodeId, tagName, tagData, tagType, callback) => {
     pool.query('INSERT INTO `tags` SET ?',
-      { tag_type_ID: tag_type.tag_type_ID,
-        node_id: node_id,
-        key: tag_name,
+      { tag_type_id: tagType.tagTypeId,
+        node_id: nodeId,
+        key: tagName,
       },
      function (error, result, fields) {
       if (error) return console.error(error);
-      addToTagTypeTable(tag_type.tag_table_type, tag_data, result.insertId, callback);
+      addToTagTypeTable(tagType.tagTableType, tagData, result.insertId, callback);
     });
   },
 
-  deleteNode: (node_id, resetDeleteDate = false, callback) => {
-
+  deleteNode: (nodeId, resetDeleteDate = false, callback) => {
     if (!resetDeleteDate) {
-      pool.query('SELECT deletion_date FROM nodes WHERE node_ID = ?'), [node_id], function(error, result) {
-        if (result != NULL) return callback(); 
+      pool.query('SELECT deletion_date FROM nodes WHERE node_id = ?'), [nodeId], function(error, result) {
+        if (result != NULL) return callback();
       }
     }
 
-    pool.query('UPDATE nodes SET deletion_date = CURRENT_TIMESTAMP WHERE node_ID = ?', [node_id],
+    pool.query('UPDATE nodes SET deletion_date = CURRENT_TIMESTAMP WHERE node_id = ?', [nodeId],
     function (error, result, fields) {
       if (error) return console.error(error);
     });
   }
 }
 
-function addToTagTypeTable(tag_table_type, tag_data, tag_id, callback) {
+function addToTagTypeTable(tagTableType, tagData, tagId, callback) {
   console.log("adding tag to type table..");
 
-  pool.query('INSERT INTO ?? SET ?', [tag_table_type,
-    { value: tag_data,
-      tag_ID: tag_id
+  pool.query('INSERT INTO ?? SET ?', [tagTableType,
+    { value: tagData,
+      tag_id: tagId
     }],
    function (error, result, fields) {
     //TODO: Drop tag entry here.
